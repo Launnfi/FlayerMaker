@@ -4,54 +4,18 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Variables tema OSCURO (default) ── */
-:root, [data-theme="dark"] {
-  --rosa:       #C4748A;
-  --rosa-osc:   #A85568;
-  --rosa-pal:   #2A1F26;
-  --dorado:     #D4A853;
-  --negro:      #0E0C0F;
-  --gris:       #8A7A82;
-  --gris-claro: #B0A0A8;
-  --blanco:     #F5EFF2;
-  --surface:    #1A1520;
-  --surface2:   #221C28;
-  --surface3:   #2E2638;
-  --border:     rgba(196,116,138,.18);
-  --text:       #F0E8EC;
-  --text-soft:  #A09098;
-  --sombra:     0 12px 48px rgba(0,0,0,.45);
-  --sombra-sm:  0 4px 16px rgba(0,0,0,.3);
-  --radius:     12px;
-  --radius-sm:  8px;
-  --radius-lg:  20px;
-  --trans:      .2s ease;
-}
-
-/* ── Variables tema CLARO ── */
-[data-theme="light"] {
-  --rosa:       #B5607A;
-  --rosa-osc:   #9A4560;
-  --rosa-pal:   #FDF0F4;
-  --dorado:     #C4922E;
-  --negro:      #1A1018;
-  --gris:       #7A6870;
-  --gris-claro: #9A8890;
-  --blanco:     #FFFFFF;
-  --surface:    #FFFFFF;
-  --surface2:   #F8F0F4;
-  --surface3:   #F0E4EA;
-  --border:     rgba(180,96,122,.2);
-  --text:       #1A1018;
-  --text-soft:  #7A6870;
-  --sombra:     0 12px 48px rgba(180,96,122,.12);
-  --sombra-sm:  0 4px 16px rgba(180,96,122,.08);
-}
+/* Tokens de color + temas viven en themes.css (cargado antes que este archivo).
+   Los tokens viejos (--rosa, --dorado, --surface2, --text-soft, --sombra…)
+   siguen funcionando vía el puente de alias definido allí. */
 
 /* ── Base ── */
+html {
+  background: var(--background);
+  color: var(--text);
+}
 body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--negro);
+  font-family: var(--font-sans);
+  background: var(--background);
   color: var(--text);
   min-height: 100vh;
   line-height: 1.5;
@@ -379,6 +343,37 @@ body {
   padding: 3px 6px; border-radius: 6px;
 }
 .auth-logout:hover { color: var(--text); background: var(--surface3); }
+
+/* ── Selector de temas (Configuración) ── */
+.temas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.tema-card {
+  position: relative;
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px; text-align: left;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); cursor: pointer;
+  transition: border-color var(--trans), transform var(--trans), box-shadow var(--trans);
+}
+.tema-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--elev-2); }
+.tema-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.tema-card.activa { border-color: var(--primary); box-shadow: inset 0 0 0 1.5px var(--primary); }
+.tema-swatch { display: flex; gap: 4px; height: 26px; }
+.tema-swatch i { flex: 1; border-radius: 5px; display: block; }
+.tema-info { display: flex; align-items: center; gap: 8px; }
+.tema-ico { font-size: 18px; line-height: 1; }
+.tema-nom { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.tema-check {
+  position: absolute; top: 10px; right: 10px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--primary); color: var(--on-primary);
+  display: none; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.tema-card.activa .tema-check { display: flex; }
 
 input[type="range"] {
   width: 100%;

@@ -1,0 +1,308 @@
+/* ══════════════════════════════════════════════════════
+   THEMES.CSS — Sistema de temas por industria
+   ──────────────────────────────────────────────────────
+   • Cada tema define SOLO su paleta (15 tokens de color).
+   • Las escalas no-color (radios, espaciado, sombras,
+     tipografía) viven una sola vez en :root.
+   • Un "puente de alias" mapea los tokens viejos del proyecto
+     a los nuevos, así todos los componentes existentes se
+     re-tematizan sin tocar su CSS.
+   • Agregar un tema nuevo = un bloque [data-theme="x"] con
+     los 15 tokens. Nada más.
+   ══════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Tipografía ── */
+  --font-sans:    'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+
+  /* ── Radios ── */
+  --radius-sm:   8px;
+  --radius:      12px;
+  --radius-lg:   18px;
+  --radius-pill: 999px;
+
+  /* ── Espaciado (escala de 4px) ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 48px;
+
+  /* ── Transiciones ── */
+  --trans:      .18s ease;
+  --trans-slow: .32s cubic-bezier(.4, 0, .2, 1);
+
+  /* ── Paleta por defecto (Tecnología / neutral premium, claro) ── */
+  --primary:        #2563EB;
+  --primary-hover:  #1D4ED8;
+  --on-primary:     #FFFFFF;
+  --secondary:      #64748B;
+  --accent:         #0EA5E9;
+  --background:     #F8FAFC;
+  --surface:        #FFFFFF;
+  --surface-2:      #F1F5F9;
+  --text:           #0F172A;
+  --text-secondary: #64748B;
+  --border:         #E2E8F0;
+  --success:        #16A34A;
+  --warning:        #D97706;
+  --danger:         #DC2626;
+  --shadow:         rgba(15, 23, 42, .08);
+
+  /* ── Elevaciones (derivadas del color de sombra del tema) ── */
+  --elev-1: 0 1px 2px var(--shadow);
+  --elev-2: 0 4px 16px var(--shadow);
+  --elev-3: 0 16px 48px var(--shadow);
+
+  /* ══ PUENTE DE ALIAS — tokens viejos → nuevos ══
+     Se resuelven contra el tema activo porque comparten el
+     elemento :root / [data-theme] (mismo <html>). */
+  --rosa:       var(--primary);
+  --rosa-osc:   var(--primary-hover);
+  --rosa-pal:   var(--surface-2);
+  --dorado:     var(--accent);
+  --negro:      var(--background);
+  --gris:       var(--text-secondary);
+  --gris-claro: var(--text-secondary);
+  --blanco:     var(--on-primary);
+  --surface2:   var(--surface-2);
+  --surface3:   var(--surface-2);
+  --text-soft:  var(--text-secondary);
+  --sombra:     var(--elev-3);
+  --sombra-sm:  var(--elev-2);
+}
+
+/* ══════════════════════════════════════════════
+   TEMAS
+   ══════════════════════════════════════════════ */
+
+/* ── Clásico oscuro ── */
+[data-theme="dark"] {
+  --primary:        #C4748A;
+  --primary-hover:  #A85568;
+  --on-primary:     #FFFFFF;
+  --secondary:      #8A7A82;
+  --accent:         #D4A853;
+  --background:     #0E0C0F;
+  --surface:        #1A1520;
+  --surface-2:      #221C28;
+  --text:           #F0E8EC;
+  --text-secondary: #A09098;
+  --border:         rgba(255, 255, 255, .10);
+  --success:        #4ADE80;
+  --warning:        #FBBF24;
+  --danger:         #F87171;
+  --shadow:         rgba(0, 0, 0, .45);
+}
+
+/* ── Clásico claro ── */
+[data-theme="light"] {
+  --primary:        #B5607A;
+  --primary-hover:  #9A4560;
+  --on-primary:     #FFFFFF;
+  --secondary:      #7A6870;
+  --accent:         #C4922E;
+  --background:     #F7F2F5;
+  --surface:        #FFFFFF;
+  --surface-2:      #F4ECEF;
+  --text:           #1A1018;
+  --text-secondary: #7A6870;
+  --border:         #EBDDE1;
+  --success:        #16A34A;
+  --warning:        #D97706;
+  --danger:         #DC2626;
+  --shadow:         rgba(180, 96, 122, .12);
+}
+
+/* ── 💈 Barbería — negro, grafito, dorado, elegante ── */
+[data-theme="barberia"] {
+  --primary:        #C6A15B;
+  --primary-hover:  #B08D42;
+  --on-primary:     #17171A;
+  --secondary:      #3A3A3E;
+  --accent:         #D4AF6A;
+  --background:     #0E0E10;
+  --surface:        #17171A;
+  --surface-2:      #212125;
+  --text:           #F5F5F4;
+  --text-secondary: #A1A1AA;
+  --border:         rgba(255, 255, 255, .08);
+  --success:        #4ADE80;
+  --warning:        #FBBF24;
+  --danger:         #F87171;
+  --shadow:         rgba(0, 0, 0, .55);
+}
+
+/* ── 💇 Peluquería — blanco, negro, rosa viejo, dorado ── */
+[data-theme="peluqueria"] {
+  --primary:        #B76E79;
+  --primary-hover:  #9E5A65;
+  --on-primary:     #FFFFFF;
+  --secondary:      #2B2B2B;
+  --accent:         #C9A24B;
+  --background:     #FBF7F8;
+  --surface:        #FFFFFF;
+  --surface-2:      #F4ECEF;
+  --text:           #1E1A1C;
+  --text-secondary: #7A6E72;
+  --border:         #EBDDE1;
+  --success:        #16A34A;
+  --warning:        #D97706;
+  --danger:         #DC2626;
+  --shadow:         rgba(183, 110, 121, .13);
+}
+
+/* ── 💅 Estética / Spa — blanco, beige, rosa pastel, lavanda ── */
+[data-theme="estetica"] {
+  --primary:        #C48CA8;
+  --primary-hover:  #AC728F;
+  --on-primary:     #FFFFFF;
+  --secondary:      #B7A9C9;
+  --accent:         #C9B79C;
+  --background:     #FBF8F6;
+  --surface:        #FFFFFF;
+  --surface-2:      #F5EFF0;
+  --text:           #322A30;
+  --text-secondary: #8A7E86;
+  --border:         #ECE2E6;
+  --success:        #4CAF7D;
+  --warning:        #D9A441;
+  --danger:         #D06868;
+  --shadow:         rgba(196, 140, 168, .13);
+}
+
+/* ── 🏥 Clínica — blanco, azul, celeste, verde suave ── */
+[data-theme="clinica"] {
+  --primary:        #2E6FB0;
+  --primary-hover:  #245C95;
+  --on-primary:     #FFFFFF;
+  --secondary:      #7FB5D9;
+  --accent:         #6FB89A;
+  --background:     #F6FAFC;
+  --surface:        #FFFFFF;
+  --surface-2:      #EDF4F8;
+  --text:           #15303D;
+  --text-secondary: #5E7686;
+  --border:         #DCE7EE;
+  --success:        #16A34A;
+  --warning:        #D97706;
+  --danger:         #DC2626;
+  --shadow:         rgba(46, 111, 176, .10);
+}
+
+/* ── 🦷 Odontología — blanco, azul, turquesa ── */
+[data-theme="odontologia"] {
+  --primary:        #0E7C9B;
+  --primary-hover:  #0A6580;
+  --on-primary:     #FFFFFF;
+  --secondary:      #3AA6BF;
+  --accent:         #16C0A8;
+  --background:     #F5FBFC;
+  --surface:        #FFFFFF;
+  --surface-2:      #E9F5F7;
+  --text:           #10333B;
+  --text-secondary: #557079;
+  --border:         #D6EBEF;
+  --success:        #16A34A;
+  --warning:        #D97706;
+  --danger:         #DC2626;
+  --shadow:         rgba(14, 124, 155, .11);
+}
+
+/* ── 🏋️ Gimnasio — negro, rojo, gris oscuro, alto contraste ── */
+[data-theme="gimnasio"] {
+  --primary:        #E11D2A;
+  --primary-hover:  #C01522;
+  --on-primary:     #FFFFFF;
+  --secondary:      #3F3F46;
+  --accent:         #FACC15;
+  --background:     #0B0B0D;
+  --surface:        #151518;
+  --surface-2:      #1E1E22;
+  --text:           #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --border:         rgba(255, 255, 255, .12);
+  --success:        #22C55E;
+  --warning:        #F59E0B;
+  --danger:         #EF4444;
+  --shadow:         rgba(0, 0, 0, .6);
+}
+
+/* ── 🍔 Restaurante — marrón, beige, verde oliva, cálido ── */
+[data-theme="restaurante"] {
+  --primary:        #8A4B2F;
+  --primary-hover:  #723C25;
+  --on-primary:     #FFFFFF;
+  --secondary:      #6B7A3A;
+  --accent:         #C9A15B;
+  --background:     #FAF5EE;
+  --surface:        #FFFDFA;
+  --surface-2:      #F1E7D8;
+  --text:           #2E2118;
+  --text-secondary: #7A6A58;
+  --border:         #E7D8C4;
+  --success:        #4F8A3D;
+  --warning:        #C9891F;
+  --danger:         #C0472F;
+  --shadow:         rgba(138, 75, 47, .14);
+}
+
+/* ── ☕ Cafetería — café, crema, verde oscuro, acogedor ── */
+[data-theme="cafeteria"] {
+  --primary:        #6F4E37;
+  --primary-hover:  #5A3F2C;
+  --on-primary:     #FFFFFF;
+  --secondary:      #2F4739;
+  --accent:         #C7A17A;
+  --background:     #F7F1E8;
+  --surface:        #FFFDF9;
+  --surface-2:      #EFE5D6;
+  --text:           #33261B;
+  --text-secondary: #7A6656;
+  --border:         #E6D8C5;
+  --success:        #4F7A46;
+  --warning:        #C0892B;
+  --danger:         #B24A34;
+  --shadow:         rgba(111, 78, 55, .15);
+}
+
+/* ── 🛍️ Tienda — blanco, gris, azul ── */
+[data-theme="tienda"] {
+  --primary:        #3B5BDB;
+  --primary-hover:  #2F49B0;
+  --on-primary:     #FFFFFF;
+  --secondary:      #6B7280;
+  --accent:         #4DABF7;
+  --background:     #F9FAFB;
+  --surface:        #FFFFFF;
+  --surface-2:      #F1F3F5;
+  --text:           #1A1D23;
+  --text-secondary: #6B7280;
+  --border:         #E5E7EB;
+  --success:        #16A34A;
+  --warning:        #D97706;
+  --danger:         #DC2626;
+  --shadow:         rgba(30, 41, 59, .08);
+}
+
+/* ── 💻 Tecnología — azul, gris, blanco, minimalista ── */
+[data-theme="tecnologia"] {
+  --primary:        #2563EB;
+  --primary-hover:  #1D4ED8;
+  --on-primary:     #FFFFFF;
+  --secondary:      #64748B;
+  --accent:         #0EA5E9;
+  --background:     #F8FAFC;
+  --surface:        #FFFFFF;
+  --surface-2:      #F1F5F9;
+  --text:           #0F172A;
+  --text-secondary: #64748B;
+  --border:         #E2E8F0;
+  --success:        #16A34A;
+  --warning:        #D97706;
+  --danger:         #DC2626;
+  --shadow:         rgba(15, 23, 42, .08);
+}
