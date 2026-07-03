@@ -60,6 +60,6 @@ function dibujarVerano(ctx, W, H, d) {
 
 const camposVerano=`
   <div class="campo"><label>Título</label><input type="text" id="c-titulo" value="¡Listo para el verano!"></div>
-  <div class="campo"><label>Descripción</label><textarea id="c-desc">Depilación láser completa\nBronceado perfecto</textarea></div>
+  <div class="campo"><label>Descripción</label><textarea id="c-desc">Aprovechá la temporada\nPromos de verano</textarea></div>
   <div class="campo"><label>CTA</label><input type="text" id="c-cta" value="¡Reservá ahora!"></div>
 `;

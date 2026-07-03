@@ -4,7 +4,9 @@
 
 // ── Color utils ──
 function hexToRgb(hex) {
-  const clean = hex.replace('#','');
+  let clean = String(hex).replace('#','');
+  // Expandir hex corto de 3 dígitos (#FFF -> #FFFFFF)
+  if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
   const r = parseInt(clean.slice(0,2), 16);
   const g = parseInt(clean.slice(2,4), 16);
   const b = parseInt(clean.slice(4,6), 16);
