@@ -338,6 +338,13 @@ body {
 }
 .campo textarea { resize: vertical; min-height: 72px; }
 .campo select option { background: var(--surface2); }
+.campo-hint {
+  font-size: 11px;
+  color: var(--text-soft);
+  margin-top: 5px;
+  line-height: 1.35;
+  opacity: .8;
+}
 
 input[type="range"] {
   width: 100%;

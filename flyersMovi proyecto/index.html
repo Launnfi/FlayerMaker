@@ -76,7 +76,10 @@
     <!-- TAB: NEGOCIO -->
     <div class="tab-panel" id="tab-negocio">
 
-      <div class="seccion-titulo">Logo</div>
+      <!-- Selector de industria (generado por js/industrias.js) -->
+      <div id="industria-selector"></div>
+
+      <div class="seccion-titulo" style="margin-top:20px">Logo</div>
       <div class="logo-upload" id="logo-drop">
         <input type="file" id="logo-input" accept="image/*">
         <div id="logo-preview-wrap">
@@ -473,6 +476,7 @@
 
 <!-- Scripts — orden de dependencia — v=4 fuerza recarga de caché -->
 <script src="js/state.js?v=16"></script>
+<script src="js/industrias.js?v=16"></script>
 <script src="js/planes.js?v=16"></script>
 <script src="js/pagos.js?v=16"></script>
 <script src="js/canvas-helpers.js?v=16"></script>
