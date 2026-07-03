@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-theme="estetica">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Aplicar el tema guardado antes de pintar (evita flash) -->
+  <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('flyerstudio_theme')||'estetica')}catch(e){}</script>
   <title>FlyerStudio — Creá flyers profesionales</title>
 
   <!-- Fuentes -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Montserrat:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Raleway:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
+  <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/sidebar.css">
   <link rel="stylesheet" href="css/planes.css">
@@ -52,6 +55,7 @@
       <button class="stab active" data-tab="diseno">Diseño</button>
       <button class="stab" data-tab="negocio">Negocio</button>
       <button class="stab" data-tab="estilo">Estilo</button>
+      <button class="stab" data-tab="config" title="Configuración y tema">⚙</button>
     </div>
 
     <!-- TAB: DISEÑO -->
@@ -308,6 +312,13 @@
 
     </div>
 
+    <!-- TAB: CONFIG -->
+    <div class="tab-panel" id="tab-config">
+      <div class="seccion-titulo">Tema de la app</div>
+      <p class="campo-hint" style="margin-bottom:16px">Elegí el rubro de tu negocio. Cambia toda la apariencia al instante y se guarda para la próxima vez.</p>
+      <div class="temas-grid" id="temas-grid"><!-- generado por js/theme.js --></div>
+    </div>
+
     <!-- ── ACCIONES FINALES ── -->
     <div class="sidebar-acciones">
       <button class="btn-generar" id="btn-generar">✦ Generar flyer</button>
@@ -478,6 +489,7 @@
 <!-- Scripts — orden de dependencia — v=4 fuerza recarga de caché -->
 <script src="js/state.js?v=16"></script>
 <script src="js/industrias.js?v=16"></script>
+<script src="js/theme.js?v=16"></script>
 <script src="js/planes.js?v=16"></script>
 <script src="js/pagos.js?v=16"></script>
 <script src="js/auth.js?v=16"></script>

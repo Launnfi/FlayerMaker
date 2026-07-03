@@ -1,37 +1,14 @@
 /* ══════════════════════════════════
-   DARKMODE.JS — Toggle modo oscuro/claro
+   DARKMODE.JS — Botón claro/oscuro del header
+   Delega en el motor de temas (theme.js). El botón alterna
+   entre los temas clásicos 'dark' y 'light'.
    ══════════════════════════════════ */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const btn       = document.getElementById('btn-darkmode');
-  const iconDark  = document.getElementById('icon-dark');
-  const iconLight = document.getElementById('icon-light');
-  const html      = document.documentElement;
-
-  // Cargar preferencia guardada
-  const saved = localStorage.getItem('flyerstudio_theme');
-  if (saved) {
-    html.setAttribute('data-theme', saved);
-    State.darkMode = saved === 'dark';
-    actualizarIcono();
-  }
-
+  const btn = document.getElementById('btn-darkmode');
   btn?.addEventListener('click', () => {
-    State.darkMode = !State.darkMode;
-    const theme = State.darkMode ? 'dark' : 'light';
-    html.setAttribute('data-theme', theme);
-    localStorage.setItem('flyerstudio_theme', theme);
-    actualizarIcono();
+    const oscuro = (typeof esTemaOscuro === 'function') && esTemaOscuro(temaActual());
+    if (typeof aplicarTema === 'function') aplicarTema(oscuro ? 'light' : 'dark');
   });
-
-  function actualizarIcono() {
-    if (!iconDark || !iconLight) return;
-    if (State.darkMode) {
-      iconDark.style.display  = '';
-      iconLight.style.display = 'none';
-    } else {
-      iconDark.style.display  = 'none';
-      iconLight.style.display = '';
-    }
-  }
+  if (typeof sincronizarIconoTema === 'function') sincronizarIconoTema();
 });
