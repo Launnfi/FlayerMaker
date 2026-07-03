@@ -152,6 +152,37 @@ async function rutearAPI(req, res, urlPath) {
     return true;
   }
 
+  // Verifica un pago real contra la API de MercadoPago.
+  // El cliente NO debe confiar en los query params de back_urls (se pueden
+  // falsificar): al volver, llama acá con el payment_id que agrega MP y sólo
+  // activa el plan si MercadoPago confirma status=approved.
+  if (urlPath === '/api/mercadopago/verificar' && req.method === 'GET') {
+    const paymentId = new URL(req.url, `http://localhost:${PORT}`).searchParams.get('payment_id');
+    if (!paymentId) { jsonRes(res, 400, { error: 'Falta payment_id' }); return true; }
+    if (!MP_ACCESS_TOKEN) { jsonRes(res, 400, { error: 'MercadoPago no configurado en config.json' }); return true; }
+
+    try {
+      const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}`, {
+        headers: { 'Authorization': `Bearer ${MP_ACCESS_TOKEN}` },
+      });
+      const data = await mpRes.json();
+      if (!mpRes.ok) { jsonRes(res, 502, { error: data.message || 'Error consultando el pago' }); return true; }
+
+      // external_reference = plan_<plan>_<timestamp> (lo seteamos en crear-preferencia)
+      const ref  = data.external_reference || '';
+      const plan = (ref.match(/^plan_(pro|premium)_/) || [])[1] || null;
+
+      jsonRes(res, 200, {
+        status:   data.status,               // approved | pending | in_process | rejected | ...
+        approved: data.status === 'approved',
+        plan,
+      });
+    } catch (err) {
+      jsonRes(res, 500, { error: err.message });
+    }
+    return true;
+  }
+
   // ─── GEMINI: GENERAR IMAGEN ────────────────
   if (urlPath === '/api/gemini/generar-imagen' && req.method === 'POST') {
     if (!GEMINI_API_KEY) {
