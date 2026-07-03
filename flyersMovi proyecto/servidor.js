@@ -2,6 +2,8 @@ const http = require('http');
 const fs   = require('fs');
 const path = require('path');
 const cp   = require('child_process');
+const crypto = require('crypto');
+const { crearStore, crearSesiones, parseCookies, cookieHeader, crearGoogleOAuth } = require('./auth');
 
 const ROOT = __dirname;
 const PORT = 3000;
@@ -18,6 +20,38 @@ const GEMINI_API_KEY  = CONFIG.gemini_api_key || '';
 // localhost; en producción poné el dominio https real en config.json (app_url).
 const APP_URL = (CONFIG.app_url || `http://localhost:${PORT}`).replace(/\/$/, '');
 const APP_ES_LOCAL = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(APP_URL);
+
+// ── Auth (Google OAuth + store de usuarios en JSON) ──
+const APP_SECRET = CONFIG.app_secret || crypto.randomBytes(32).toString('hex');
+const Usuarios  = crearStore(ROOT);
+const Sesiones  = crearSesiones(APP_SECRET);
+const GoogleOAuth = crearGoogleOAuth({
+  clientId:     CONFIG.google_client_id || '',
+  clientSecret: CONFIG.google_client_secret || '',
+  redirectUri:  `${APP_URL}/api/auth/google/callback`,
+});
+const SESION_DIAS = 30;
+
+// Devuelve el usuario logueado a partir de la cookie de sesión, o null.
+function usuarioActual(req) {
+  const token = parseCookies(req).fs_session;
+  const ses = Sesiones.verificar(token);
+  if (!ses?.uid) return null;
+  return Usuarios.findById(ses.uid);
+}
+function setCookieSesion(res, userId) {
+  const exp = Date.now() + SESION_DIAS * 864e5;
+  const token = Sesiones.firmar({ uid: userId, exp });
+  res.setHeader('Set-Cookie', cookieHeader('fs_session', token, {
+    maxAge: SESION_DIAS * 86400, secure: !APP_ES_LOCAL,
+  }));
+}
+function redirect(res, url, cookie) {
+  const headers = { Location: url };
+  if (cookie) headers['Set-Cookie'] = cookie;
+  res.writeHead(302, headers);
+  res.end();
+}
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -95,8 +129,62 @@ async function rutearAPI(req, res, urlPath) {
     return true;
   }
 
+  // ─── AUTH: GOOGLE OAUTH ────────────────────
+  // Inicia el login: redirige al consentimiento de Google.
+  if (urlPath === '/api/auth/google' && req.method === 'GET') {
+    if (!GoogleOAuth.configurado()) {
+      htmlRes(res, 500, 'Google OAuth no está configurado. Completá google_client_id y google_client_secret en config.json.');
+      return true;
+    }
+    const state = Sesiones.firmar({ k: 'oauth', n: crypto.randomBytes(8).toString('hex'), exp: Date.now() + 6e5 });
+    redirect(res, GoogleOAuth.urlConsentimiento(state));
+    return true;
+  }
+
+  // Callback de Google: intercambia el code, crea/actualiza el usuario y abre sesión.
+  if (urlPath === '/api/auth/google/callback' && req.method === 'GET') {
+    const q = new URL(req.url, APP_URL).searchParams;
+    const code  = q.get('code');
+    const state = q.get('state');
+    const st = Sesiones.verificar(state);
+    if (!code || !st || st.k !== 'oauth') { redirect(res, '/?login_error=1'); return true; }
+    try {
+      const perfil = await GoogleOAuth.intercambiarCode(code);
+      if (!perfil.googleId) throw new Error('perfil inválido');
+      const u = Usuarios.upsertGoogle(perfil);
+      setCookieSesion(res, u.id);
+      res.writeHead(302, { Location: '/?login=1' });
+      res.end();
+    } catch (err) {
+      console.warn('OAuth callback error:', err.message);
+      redirect(res, '/?login_error=1');
+    }
+    return true;
+  }
+
+  // Devuelve el usuario logueado (o null) + si Google está configurado.
+  if (urlPath === '/api/auth/me' && req.method === 'GET') {
+    const u = usuarioActual(req);
+    jsonRes(res, 200, {
+      googleConfigurado: GoogleOAuth.configurado(),
+      user: u ? { email: u.email, nombre: u.nombre, picture: u.picture, plan: u.plan } : null,
+    });
+    return true;
+  }
+
+  // Cierra la sesión.
+  if (urlPath === '/api/auth/logout' && req.method === 'POST') {
+    res.setHeader('Set-Cookie', cookieHeader('fs_session', '', { borrar: true, secure: !APP_ES_LOCAL }));
+    jsonRes(res, 200, { ok: true });
+    return true;
+  }
+
   // ─── MERCADOPAGO ───────────────────────────
   if (urlPath === '/api/mercadopago/crear-preferencia' && req.method === 'POST') {
+    // El pago se vincula a la cuenta: hay que estar logueado.
+    const usuario = usuarioActual(req);
+    if (!usuario) { jsonRes(res, 401, { error: 'Iniciá sesión para suscribirte' }); return true; }
+
     const body = JSON.parse(await leerBody(req));
     const { plan } = body;
 
@@ -125,7 +213,7 @@ async function rutearAPI(req, res, urlPath) {
             currency_id: 'UYU',
             unit_price: precios[plan],
           }],
-          payer: { email: '' },
+          payer: { email: usuario.email || '' },
           back_urls: {
             success: `${APP_URL}/?mp_success=1&mp_plan=${plan}`,
             failure: `${APP_URL}/?mp_failure=1`,
@@ -134,7 +222,7 @@ async function rutearAPI(req, res, urlPath) {
           // MercadoPago rechaza auto_return con back_urls en localhost; sólo lo
           // mandamos cuando la app tiene una URL pública (producción).
           ...(APP_ES_LOCAL ? {} : { auto_return: 'approved' }),
-          external_reference: `plan_${plan}_${Date.now()}`,
+          external_reference: `plan_${plan}_${usuario.id}_${Date.now()}`,
           notification_url: `${APP_URL}/api/mercadopago/webhook`,
         }),
       });
@@ -153,9 +241,29 @@ async function rutearAPI(req, res, urlPath) {
   }
 
   if (urlPath === '/api/mercadopago/webhook' && req.method === 'POST') {
-    const body = JSON.parse(await leerBody(req));
-    console.log('MP Webhook:', JSON.stringify(body, null, 2));
+    let body = {};
+    try { body = JSON.parse(await leerBody(req) || '{}'); } catch {}
+    const q = new URL(req.url, APP_URL).searchParams;
+    const tipo = body.type || q.get('type') || q.get('topic');
+    const paymentId = body.data?.id || q.get('data.id') || q.get('id');
+
+    // Responder rápido siempre (MP reintenta si no recibe 200).
     jsonRes(res, 200, { ok: true });
+
+    // Confirmar el pago contra MP y persistir el plan si fue aprobado.
+    if (tipo === 'payment' && paymentId && MP_ACCESS_TOKEN) {
+      try {
+        const r = await fetch(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}`, {
+          headers: { 'Authorization': `Bearer ${MP_ACCESS_TOKEN}` },
+        });
+        const pago = await r.json();
+        const m = String(pago.external_reference || '').match(/^plan_(pro|premium)_([0-9a-f-]{36})_/);
+        if (r.ok && pago.status === 'approved' && m) {
+          Usuarios.setPlan(m[2], m[1]);
+          console.log(`Webhook: plan ${m[1]} activado para usuario ${m[2]}`);
+        }
+      } catch (err) { console.warn('Webhook pago error:', err.message); }
+    }
     return true;
   }
 
@@ -175,13 +283,19 @@ async function rutearAPI(req, res, urlPath) {
       const data = await mpRes.json();
       if (!mpRes.ok) { jsonRes(res, 502, { error: data.message || 'Error consultando el pago' }); return true; }
 
-      // external_reference = plan_<plan>_<timestamp> (lo seteamos en crear-preferencia)
-      const ref  = data.external_reference || '';
-      const plan = (ref.match(/^plan_(pro|premium)_/) || [])[1] || null;
+      // external_reference = plan_<plan>_<userId>_<timestamp> (seteado en crear-preferencia)
+      const ref = data.external_reference || '';
+      const m   = ref.match(/^plan_(pro|premium)_([0-9a-f-]{36})_/);
+      const plan   = m?.[1] || null;
+      const userId = m?.[2] || null;
+      const aprobado = data.status === 'approved';
+
+      // Fuente de verdad: el plan se persiste en la cuenta del usuario server-side.
+      if (aprobado && userId && plan) Usuarios.setPlan(userId, plan);
 
       jsonRes(res, 200, {
         status:   data.status,               // approved | pending | in_process | rejected | ...
-        approved: data.status === 'approved',
+        approved: aprobado,
         plan,
       });
     } catch (err) {

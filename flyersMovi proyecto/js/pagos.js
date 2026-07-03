@@ -14,6 +14,15 @@ async function iniciarPago(plan) {
     });
 
     const data = await res.json();
+
+    // Sin sesión → mandar a login con Google primero
+    if (res.status === 401) {
+      mostrarToast('Iniciá sesión para suscribirte');
+      if (btn) { btn.disabled = false; btn.textContent = plan === 'pro' ? 'Activar Pro' : 'Activar Premium'; }
+      if (typeof iniciarLoginGoogle === 'function') setTimeout(iniciarLoginGoogle, 800);
+      return;
+    }
+
     if (!res.ok) throw new Error(data.error || 'Error al crear pago');
 
     // Redirigir a MercadoPago
