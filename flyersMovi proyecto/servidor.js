@@ -14,6 +14,10 @@ try {
 
 const MP_ACCESS_TOKEN = CONFIG.mercadopago_access_token || '';
 const GEMINI_API_KEY  = CONFIG.gemini_api_key || '';
+// URL pública de la app (para las back_urls de MercadoPago). En local queda
+// localhost; en producción poné el dominio https real en config.json (app_url).
+const APP_URL = (CONFIG.app_url || `http://localhost:${PORT}`).replace(/\/$/, '');
+const APP_ES_LOCAL = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(APP_URL);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -122,13 +126,15 @@ async function rutearAPI(req, res, urlPath) {
           }],
           payer: { email: '' },
           back_urls: {
-            success: `http://localhost:${PORT}/?mp_success=1&mp_plan=${plan}`,
-            failure: `http://localhost:${PORT}/?mp_failure=1`,
-            pending: `http://localhost:${PORT}/?mp_pending=1&mp_plan=${plan}`,
+            success: `${APP_URL}/?mp_success=1&mp_plan=${plan}`,
+            failure: `${APP_URL}/?mp_failure=1`,
+            pending: `${APP_URL}/?mp_pending=1&mp_plan=${plan}`,
           },
-          auto_return: 'approved',
+          // MercadoPago rechaza auto_return con back_urls en localhost; sólo lo
+          // mandamos cuando la app tiene una URL pública (producción).
+          ...(APP_ES_LOCAL ? {} : { auto_return: 'approved' }),
           external_reference: `plan_${plan}_${Date.now()}`,
-          notification_url: `http://localhost:${PORT}/api/mercadopago/webhook`,
+          notification_url: `${APP_URL}/api/mercadopago/webhook`,
         }),
       });
 

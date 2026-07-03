@@ -1,0 +1,11 @@
+# Secretos / configuración local — NO commitear
+config.json
+flyersMovi proyecto/config.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db

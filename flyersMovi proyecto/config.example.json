@@ -1,0 +1,6 @@
+{
+  "_comment": "Copiá este archivo como config.json y completá con tus propias credenciales. config.json está en .gitignore y NO debe commitearse.",
+  "mercadopago_access_token": "APP_USR-xxxxxxxx  (o TEST-xxxx para pruebas)",
+  "mercadopago_public_key": "APP_USR-xxxxxxxx",
+  "gemini_api_key": "AIzaxxxx"
+}
