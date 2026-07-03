@@ -2,6 +2,10 @@
 config.json
 flyersMovi proyecto/config.json
 
+# Datos de usuarios (store JSON local)
+usuarios.json
+flyersMovi proyecto/usuarios.json
+
 # Node
 node_modules/
 npm-debug.log*

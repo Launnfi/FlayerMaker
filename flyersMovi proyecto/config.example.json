@@ -1,6 +1,10 @@
 {
-  "_comment": "Copiá este archivo como config.json y completá con tus propias credenciales. config.json está en .gitignore y NO debe commitearse.",
+  "_comment": "Copiá este archivo como config.json y completá con tus credenciales. config.json y usuarios.json están en .gitignore y NO deben commitearse.",
   "mercadopago_access_token": "APP_USR-xxxxxxxx  (o TEST-xxxx para pruebas)",
   "mercadopago_public_key": "APP_USR-xxxxxxxx",
-  "gemini_api_key": "AIzaxxxx"
+  "gemini_api_key": "AIzaxxxx",
+  "google_client_id": "xxxxxxxx.apps.googleusercontent.com",
+  "google_client_secret": "GOCSPX-xxxxxxxx",
+  "app_secret": "cadena-larga-aleatoria-para-firmar-sesiones (node: crypto.randomBytes(32).toString('hex'))",
+  "app_url": "https://tudominio.com  (opcional; en local usa http://localhost:3000)"
 }
