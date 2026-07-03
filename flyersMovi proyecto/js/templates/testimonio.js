@@ -65,6 +65,6 @@ function dibujarTestimonio(ctx, W, H, d) {
 const camposTestimonio=`
   <div class="campo"><label>Testimonio</label><textarea id="c-frase" style="min-height:110px">"Increíble atención, quedé\nencantada con el resultado.\n¡100% lo recomiendo!"</textarea></div>
   <div class="campo"><label>Cliente</label><input type="text" id="c-cliente" value="María González"></div>
-  <div class="campo"><label>Servicio <span class="label-opt">opcional</span></label><input type="text" id="c-servicio" placeholder="Depilación láser"></div>
+  <div class="campo"><label>Servicio <span class="label-opt">opcional</span></label><input type="text" id="c-servicio" placeholder="Nombre del servicio"></div>
   <div class="campo"><label>Calificación</label><select id="c-estrellas"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option></select></div>
 `;

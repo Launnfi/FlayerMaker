@@ -58,6 +58,6 @@ function dibujarDiaMadre(ctx, W, H, d) {
 
 const camposDiaMadre=`
   <div class="campo"><label>Título</label><input type="text" id="c-titulo" value="¡Feliz Día Mamá!"></div>
-  <div class="campo"><label>Mensaje</label><textarea id="c-desc">Celebrá con un momento\nde bienestar y belleza</textarea></div>
+  <div class="campo"><label>Mensaje</label><textarea id="c-desc">Celebrá este día\ncon algo especial</textarea></div>
   <div class="campo"><label>Oferta <span class="label-opt">opcional</span></label><input type="text" id="c-precio" placeholder="20% OFF todo el mes"></div>
 `;

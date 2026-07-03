@@ -55,7 +55,7 @@ function dibujarMinimalista(ctx, W, H, d) {
 }
 
 const camposMinimalista=`
-  <div class="campo"><label>Título</label><textarea id="c-titulo">Belleza\nsin límites</textarea></div>
-  <div class="campo"><label>Subtexto <span class="label-opt">opcional</span></label><input type="text" id="c-subtitulo" placeholder="Servicio exclusivo"></div>
-  <div class="campo"><label>CTA <span class="label-opt">opcional</span></label><input type="text" id="c-cta" placeholder="Reservar turno →"></div>
+  <div class="campo"><label>Título</label><textarea id="c-titulo">Tu marca\nsin límites</textarea></div>
+  <div class="campo"><label>Subtexto <span class="label-opt">opcional</span></label><input type="text" id="c-subtitulo" placeholder="Propuesta exclusiva"></div>
+  <div class="campo"><label>CTA <span class="label-opt">opcional</span></label><input type="text" id="c-cta" placeholder="Conocé más →"></div>
 `;

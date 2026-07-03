@@ -69,9 +69,9 @@ function dibujarPromo(ctx, W, H, d) {
 
 const camposPromo = `
   <div class="campo"><label>Título de la promo</label>
-    <input type="text" id="c-titulo" value="30% OFF en depilación"></div>
+    <input type="text" id="c-titulo" value="30% OFF"></div>
   <div class="campo"><label>Descripción</label>
-    <textarea id="c-desc">Válido todo el mes de mayo\nReservá tu turno ya</textarea></div>
+    <textarea id="c-desc">Válido todo el mes\n¡Aprovechá ahora!</textarea></div>
   <div class="campo"><label>Descuento / badge</label>
     <input type="text" id="c-precio" value="30% OFF"></div>
 `;
