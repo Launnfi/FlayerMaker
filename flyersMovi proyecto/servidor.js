@@ -160,7 +160,10 @@ async function rutearAPI(req, res, urlPath) {
     }
 
     const body = JSON.parse(await leerBody(req));
-    const prompt = `Generá una imagen de fondo abstracto para un flyer de estética de belleza. ${body.prompt || ''}. Sin texto, sin caras, sin logos. Formato cuadrado. Estética suave y profesional.`;
+    // El cliente (construirPromptImagen) ya arma el prompt completo con la industria.
+    // Se usa tal cual; sólo hay un fallback genérico si llega vacío.
+    const prompt = body.prompt
+      || 'Generá una imagen de fondo abstracto y profesional para un flyer. Sin texto, sin caras, sin logos. Formato cuadrado.';
 
     // Probar modelos con soporte de imagen
     const modelosAProbar = ['gemini-2.5-flash-image', 'gemini-3.1-flash-image-preview', 'gemini-3-pro-image-preview'];
@@ -211,7 +214,8 @@ async function rutearAPI(req, res, urlPath) {
     }
 
     const body = JSON.parse(await leerBody(req));
-    const negocio = body.negocio || 'estética de belleza';
+    const negocio     = body.negocio     || 'estética de belleza';
+    const brandingRol = body.brandingRol || 'salones de belleza';
 
     try {
       const gemRes = await fetch(
@@ -222,7 +226,7 @@ async function rutearAPI(req, res, urlPath) {
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Sos un diseñador experto en branding para salones de belleza. Sugerí 4 paletas de colores distintas y elegantes para el negocio "${negocio}". Respondé SOLO con JSON válido, sin texto extra ni markdown. Formato: {"paletas":[{"nombre":"string","principal":"#HEX","fondo":"#HEX","acento":"#HEX","descripcion":"máx 8 palabras"}]}`,
+                text: `Sos un diseñador experto en branding para ${brandingRol}. Sugerí 4 paletas de colores distintas y elegantes para el negocio "${negocio}". Respondé SOLO con JSON válido, sin texto extra ni markdown. Formato: {"paletas":[{"nombre":"string","principal":"#HEX","fondo":"#HEX","acento":"#HEX","descripcion":"máx 8 palabras"}]}`,
               }],
             }],
             generationConfig: {

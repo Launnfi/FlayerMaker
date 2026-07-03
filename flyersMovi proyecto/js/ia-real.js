@@ -98,12 +98,17 @@ function construirPromptImagen(textoUsuario) {
     : b > 180 ? 'lavender and soft white'
     : 'dusty rose and beige';
 
-  const base = textoUsuario?.trim() || 'elegant abstract background for a luxury beauty salon';
+  const ind  = (typeof IndustriaState !== 'undefined') ? IndustriaState.actual() : null;
+  const rubro    = ind?.promptImagen     || 'estética de belleza';
+  const baseDef  = ind?.promptImagenBase || 'elegant abstract background for a luxury beauty salon';
+  const estetica = ind?.estetica         || 'suave y lujosa';
 
-  return `Generá una imagen de fondo abstracto para un flyer de estética de belleza. ` +
+  const base = textoUsuario?.trim() || baseDef;
+
+  return `Generá una imagen de fondo abstracto para un flyer de ${rubro}. ` +
     `Tema: ${base}. ` +
     `Paleta de colores: ${colorNombre}. ` +
-    `Estética suave y lujosa. ` +
+    `Estética ${estetica}. ` +
     `Sin texto, sin caras, sin logos. ` +
     `Formato cuadrado. ` +
     `La imagen debe verse profesional, apta para Instagram.`;
@@ -114,7 +119,9 @@ function construirPromptImagen(textoUsuario) {
 // ══════════════════════════════════════════════════
 
 async function iaSugerirColores() {
-  const negocio = document.getElementById('inp-negocio')?.value || 'estética de belleza';
+  const ind        = (typeof IndustriaState !== 'undefined') ? IndustriaState.actual() : null;
+  const brandingRol = ind?.brandingRol || 'salones de belleza';
+  const negocio = document.getElementById('inp-negocio')?.value || ind?.nombre || 'estética de belleza';
   const modelo  = IAState.modelo;
 
   // Intentar vía servidor proxy
@@ -123,7 +130,7 @@ async function iaSugerirColores() {
       const res = await fetch('/api/gemini/sugerir-paletas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ negocio, modelo }),
+        body: JSON.stringify({ negocio, modelo, brandingRol }),
       });
       const data = await res.json();
       if (res.ok) return data;
@@ -146,7 +153,7 @@ async function iaSugerirColores() {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Sos un diseñador experto en branding para salones de belleza. Sugerí 4 paletas de colores distintas y elegantes para el negocio "${negocio}". Respondé SOLO con JSON válido, sin texto extra ni markdown. Formato: {"paletas":[{"nombre":"string","principal":"#HEX","fondo":"#HEX","acento":"#HEX","descripcion":"máx 8 palabras"}]}`,
+            text: `Sos un diseñador experto en branding para ${brandingRol}. Sugerí 4 paletas de colores distintas y elegantes para el negocio "${negocio}". Respondé SOLO con JSON válido, sin texto extra ni markdown. Formato: {"paletas":[{"nombre":"string","principal":"#HEX","fondo":"#HEX","acento":"#HEX","descripcion":"máx 8 palabras"}]}`,
           }],
         }],
         generationConfig: { temperature: 0.85, maxOutputTokens: 600 },
