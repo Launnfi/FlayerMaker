@@ -100,7 +100,8 @@ async function rutearAPI(req, res, urlPath) {
     const body = JSON.parse(await leerBody(req));
     const { plan } = body;
 
-    const precios = { pro: 12, premium: 29 };
+    // Precios en UYU (≈ USD 12 / USD 29 a ~41 UYU por dólar). Ajustá según el tipo de cambio.
+    const precios = { pro: 490, premium: 1190 };
     const titulos = { pro: 'FlyerStudio Pro', premium: 'FlyerStudio Premium' };
     const preciosId = { pro: 'plan-pro-mensual', premium: 'plan-premium-mensual' };
 
@@ -121,7 +122,7 @@ async function rutearAPI(req, res, urlPath) {
             id: preciosId[plan],
             title: titulos[plan],
             quantity: 1,
-            currency_id: 'ARS',
+            currency_id: 'UYU',
             unit_price: precios[plan],
           }],
           payer: { email: '' },
