@@ -43,17 +43,17 @@ function dibujarNuevoServicio(ctx, W, H, d) {
   ctx.fillStyle=hexToRgba(textoColor,.6);ctx.font=`400 22px '${fBody}',sans-serif`;
   ctx.textAlign='left';ctx.fillText('Presentamos:',60,H*.38);
 
-  dibujarBloque(ctx,'titulo',W*.1,H*.52,(ctx,m)=>{
+  dibujarBloque(ctx,'titulo',W*.055,H*.52,(ctx,m)=>{
     const sz=H<700?54:70; const lh=H<700?66:82;
-    ctx.font=`900 ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font=`900 ${sz}px '${fTitulo}',serif`;ctx.textAlign='left';ctx.textBaseline='middle';
     const lines=nombre.split('\n'); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=textoColor;lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh};
   });
 
-  dibujarBloque(ctx,'descripcion',W*.1,H*.68,(ctx,m)=>{
+  dibujarBloque(ctx,'descripcion',W*.055,H*.68,(ctx,m)=>{
     const sz=H<700?22:28; const lh=H<700?34:42;
-    ctx.font=`400 ${sz}px '${fBody}',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font=`400 ${sz}px '${fBody}',sans-serif`;ctx.textAlign='left';ctx.textBaseline='middle';
     const lines=desc.split('\n').filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=hexToRgba(textoColor,.75);lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh||sz+8};
@@ -74,8 +74,8 @@ function dibujarNuevoServicio(ctx, W, H, d) {
 }
 
 const camposNuevoServicio=`
-  <div class="campo"><label>Nombre del servicio</label><input type="text" id="c-titulo" value="Lifting de pestañas"></div>
-  <div class="campo"><label>Descripción</label><textarea id="c-desc">Efecto rizador natural\nDura hasta 8 semanas\nSin daño en tus pestañas</textarea></div>
+  <div class="campo"><label>Nombre del servicio</label><input type="text" id="c-titulo" value="Nuevo servicio"></div>
+  <div class="campo"><label>Descripción</label><textarea id="c-desc">Beneficio principal\nSegundo beneficio\nTercer beneficio</textarea></div>
   <div class="campo"><label>Precio <span class="label-opt">opcional</span></label><input type="text" id="c-precio" placeholder="Desde $1.800"></div>
   <div class="campo"><label>Badge superior</label><input type="text" id="c-badge" value="¡NUEVO!"></div>
 `;

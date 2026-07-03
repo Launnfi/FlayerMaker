@@ -48,16 +48,16 @@ function dibujarPromo(ctx, W, H, d) {
     ctx.fillText(precio,0,0); ctx.restore();
   }
 
-  dibujarBloque(ctx,'titulo',W*.14,H*.52,(ctx,m)=>{
-    const sz=H<700?46:64; ctx.font=`700 ${sz}px '${fTitulo}',serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  dibujarBloque(ctx,'titulo',W*.08,H*.52,(ctx,m)=>{
+    const sz=H<700?46:64; ctx.font=`700 ${sz}px '${fTitulo}',serif`; ctx.textAlign='left'; ctx.textBaseline='middle';
     const lines=titulo.split('\n').filter(Boolean); const lh=sz+14;
     const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1), mH=lines.length*lh;
     if(!m){ctx.fillStyle=textoColor; lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:mH};
   });
 
-  dibujarBloque(ctx,'descripcion',W*.1,H*.72,(ctx,m)=>{
-    const sz=H<700?24:30; ctx.font=`400 ${sz}px '${fBody}',sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  dibujarBloque(ctx,'descripcion',W*.08,H*.72,(ctx,m)=>{
+    const sz=H<700?24:30; ctx.font=`400 ${sz}px '${fBody}',sans-serif`; ctx.textAlign='left'; ctx.textBaseline='middle';
     const lines=desc.split('\n').filter(Boolean); const lh=sz+14;
     const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1), mH=lines.length*lh;
     if(!m){ctx.fillStyle=hexToRgba(textoColor,.75); lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}

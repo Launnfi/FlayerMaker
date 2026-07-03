@@ -31,9 +31,6 @@ function dibujarTurnos(ctx, W, H, d) {
     return {w,h};
   });
 
-  ctx.font='52px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#FFF';
-  ctx.fillText('📅',W/2,H*.19+40);
-
   dibujarBloque(ctx,'titulo',W/2,H*.50,(ctx,m)=>{
     const sz=H<700?52:66; const lh=H<700?64:80;
     ctx.font=`900 ${sz}px '${fTitulo}',serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
