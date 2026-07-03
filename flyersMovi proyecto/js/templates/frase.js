@@ -54,6 +54,6 @@ function dibujarFrase(ctx, W, H, d) {
 }
 
 const camposFrase=`
-  <div class="campo"><label>Frase principal</label><textarea id="c-frase" style="min-height:90px">"La belleza\nes una forma\nde expresión"</textarea></div>
+  <div class="campo"><label>Frase principal</label><textarea id="c-frase" style="min-height:90px">"Hacé que tu\nmarca hable\npor vos"</textarea></div>
   <div class="campo"><label>Subtítulo <span class="label-opt">opcional</span></label><input type="text" id="c-subtitulo" value="Tu lugar de confianza"></div>
 `;

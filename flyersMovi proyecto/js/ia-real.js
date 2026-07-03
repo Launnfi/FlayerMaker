@@ -90,13 +90,25 @@ async function iaGenerarImagenFondo(promptUsuario, onProgress) {
   throw new Error('No hay modelo Gemini disponible para generar imágenes. Probá con Pollinations o configurá Vertex AI.');
 }
 
+// Nombre aproximado de un color a partir de su hex (independiente de la industria).
+function nombreColorES(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  if (d < 25) return max > 200 ? 'blanco' : max < 70 ? 'negro' : 'gris';
+  let h;
+  if (max === r) h = ((g - b) / d) % 6;
+  else if (max === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  h = Math.round(h * 60); if (h < 0) h += 360;
+  const rangos = [[15,'rojo'],[45,'naranja'],[70,'amarillo'],[160,'verde'],[200,'cian'],[255,'azul'],[290,'violeta'],[335,'rosa'],[360,'rojo']];
+  for (const [lim, n] of rangos) if (h <= lim) return n;
+  return 'color neutro';
+}
+
 function construirPromptImagen(textoUsuario) {
   const colorP = document.getElementById('color-principal')?.value || '#C4748A';
-  const { r, g, b } = hexToRgb(colorP);
-  const colorNombre = r > 180 ? 'rose pink and warm gold'
-    : g > 150 ? 'sage green and cream'
-    : b > 180 ? 'lavender and soft white'
-    : 'dusty rose and beige';
+  const colorA = document.getElementById('color-acento')?.value    || '#D4A853';
+  const colorNombre = `tonos ${nombreColorES(colorP)} con acentos ${nombreColorES(colorA)}`;
 
   const ind  = (typeof IndustriaState !== 'undefined') ? IndustriaState.actual() : null;
   const rubro    = ind?.promptImagen     || 'estética de belleza';

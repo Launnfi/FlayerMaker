@@ -64,6 +64,6 @@ function dibujarLuxury(ctx, W, H, d) {
 
 const camposLuxury=`
   <div class="campo"><label>Título</label><textarea id="c-titulo">Experiencia\nPremium</textarea></div>
-  <div class="campo"><label>Descripción <span class="label-opt">opcional</span></label><textarea id="c-desc">El tratamiento más exclusivo\ndiseñado para vos</textarea></div>
+  <div class="campo"><label>Descripción <span class="label-opt">opcional</span></label><textarea id="c-desc">La experiencia más exclusiva\ndiseñada para vos</textarea></div>
   <div class="campo"><label>Precio <span class="label-opt">opcional</span></label><input type="text" id="c-precio" placeholder="Desde $3.500"></div>
 `;

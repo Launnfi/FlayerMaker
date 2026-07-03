@@ -64,5 +64,5 @@ function dibujarServicios(ctx, W, H, d) {
 const camposServicios=`
   <div class="campo"><label>Título</label><input type="text" id="c-titulo" value="Nuestros servicios"></div>
   <div class="campo"><label>Servicios (uno por línea)</label>
-    <textarea id="c-servicios" style="min-height:140px">Depilación láser\nManicura y pedicura\nFaciales premium\nMasajes relajantes\nLifting de pestañas\nDiseño de cejas</textarea></div>
+    <textarea id="c-servicios" style="min-height:140px">Servicio principal\nSegundo servicio\nTercer servicio\nCuarto servicio</textarea></div>
 `;
