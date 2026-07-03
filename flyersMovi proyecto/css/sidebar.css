@@ -1,0 +1,176 @@
+/* ══════════════════════════════════
+   SIDEBAR.CSS — Panel lateral
+   ══════════════════════════════════ */
+
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+}
+
+/* ── Tabs ── */
+.sidebar-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.stab {
+  flex: 1;
+  padding: 13px 8px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-soft);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: all var(--trans);
+  text-transform: uppercase;
+}
+.stab:hover { color: var(--text); }
+.stab.active {
+  color: var(--rosa);
+  border-bottom-color: var(--rosa);
+}
+
+/* ── Tab panels ── */
+.tab-panel {
+  display: none;
+  padding: 18px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+.tab-panel.active { display: block; }
+
+/* Scrollbar minimalista */
+.tab-panel::-webkit-scrollbar { width: 4px; }
+.tab-panel::-webkit-scrollbar-track { background: transparent; }
+.tab-panel::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+.tab-panel::-webkit-scrollbar-thumb:hover { background: var(--rosa); }
+
+/* ── Plantillas grid ── */
+.plantillas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.plantilla-btn {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 7px;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--trans);
+  background: var(--surface2);
+  font-family: 'DM Sans', sans-serif;
+  position: relative;
+}
+.plantilla-btn:hover { border-color: var(--rosa); background: var(--surface3); }
+.plantilla-btn.activa {
+  border-color: var(--rosa);
+  background: var(--surface3);
+  box-shadow: 0 0 0 1px var(--rosa);
+}
+.plantilla-btn.locked {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.plantilla-btn.locked:hover { border-color: var(--border); background: var(--surface2); box-shadow: none; }
+
+.pt-lock {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 10px;
+  color: var(--dorado);
+}
+.pt-ico { font-size: 20px; display: block; margin-bottom: 4px; }
+.pt-nom {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+}
+.pt-desc {
+  font-size: 9px;
+  color: var(--text-soft);
+  margin-top: 2px;
+  display: block;
+}
+
+/* ── Formato ── */
+.formato-btns {
+  display: flex;
+  gap: 7px;
+}
+.formato-btn {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 6px;
+  cursor: pointer;
+  text-align: center;
+  background: var(--surface2);
+  font-family: 'DM Sans', sans-serif;
+  transition: all var(--trans);
+}
+.formato-btn:hover { border-color: var(--rosa); }
+.formato-btn.activo {
+  border-color: var(--rosa);
+  background: var(--surface3);
+}
+.formato-btn.locked { opacity: .5; cursor: not-allowed; }
+.formato-btn.locked:hover { border-color: var(--border); background: var(--surface2); }
+.formato-ico { font-size: 18px; display: block; margin-bottom: 4px; }
+.formato-nom { font-size: 10px; font-weight: 600; color: var(--text); display: block; }
+.formato-dim { font-size: 9px; color: var(--text-soft); display: block; margin-top: 1px; }
+
+/* ── Fuentes ── */
+#fuentes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.fuente-btn {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 8px;
+  cursor: pointer;
+  text-align: center;
+  background: var(--surface2);
+  transition: all var(--trans);
+}
+.fuente-btn:hover { border-color: var(--rosa); }
+.fuente-btn.activa {
+  border-color: var(--rosa);
+  background: var(--surface3);
+}
+.fuente-btn.locked { opacity: .5; cursor: not-allowed; }
+.fuente-muestra {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text);
+  line-height: 1;
+}
+.fuente-nom {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  display: block;
+}

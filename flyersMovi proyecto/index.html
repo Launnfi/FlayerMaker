@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlyerStudio — Diseños para tu estética</title>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Montserrat:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Raleway:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/planes.css">
+  <link rel="stylesheet" href="css/historial.css">
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">✦</div>
+    <div>
+      <div class="header-titulo">FlyerStudio</div>
+      <div class="header-sub">Diseños profesionales para estéticas</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-plan-badge" id="btn-ver-planes">
+      <span id="plan-badge-label">Plan Básico</span>
+      <span class="badge-upgrade">Mejorar →</span>
+    </button>
+    <button class="btn-icon" id="btn-historial" title="Historial de flyers">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </button>
+    <button class="btn-icon" id="btn-darkmode" title="Modo oscuro/claro">
+      <svg id="icon-dark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="icon-light" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ══ LAYOUT PRINCIPAL ══ -->
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Tabs del sidebar -->
+    <div class="sidebar-tabs">
+      <button class="stab active" data-tab="diseno">Diseño</button>
+      <button class="stab" data-tab="negocio">Negocio</button>
+      <button class="stab" data-tab="estilo">Estilo</button>
+    </div>
+
+    <!-- TAB: DISEÑO -->
+    <div class="tab-panel active" id="tab-diseno">
+
+      <div class="seccion-titulo">Plantilla</div>
+      <div class="plantillas-grid" id="plantillas-grid">
+        <!-- Generado por js/plantillas.js -->
+      </div>
+
+      <div class="seccion-titulo" style="margin-top:20px">Formato</div>
+      <div class="formato-btns" id="formato-btns">
+        <!-- Generado por js/formato.js -->
+      </div>
+
+      <div class="seccion-titulo" style="margin-top:20px">Contenido</div>
+      <div id="campos-contenido">
+        <!-- Campos dinámicos según plantilla -->
+      </div>
+
+    </div>
+
+    <!-- TAB: NEGOCIO -->
+    <div class="tab-panel" id="tab-negocio">
+
+      <div class="seccion-titulo">Logo</div>
+      <div class="logo-upload" id="logo-drop">
+        <input type="file" id="logo-input" accept="image/*">
+        <div id="logo-preview-wrap">
+          <div class="upload-ico">✦</div>
+          <div class="upload-txt">Subir logo</div>
+          <div class="upload-hint">PNG, JPG · Recomendado fondo transparente</div>
+        </div>
+      </div>
+      <button class="btn-secondary btn-sm" id="btn-quitar-logo" style="display:none;margin-top:8px">Quitar logo</button>
+
+      <div class="seccion-titulo" style="margin-top:20px">Datos</div>
+
+      <div class="campo">
+        <label>Nombre del negocio</label>
+        <input type="text" id="inp-negocio" placeholder="Ej: Estética Valentina" value="Estética Valentina">
+      </div>
+      <div class="campo">
+        <label>Slogan <span class="label-opt">opcional</span></label>
+        <input type="text" id="inp-slogan" placeholder="Ej: Belleza que transforma" value="Belleza que transforma">
+      </div>
+      <div class="campo">
+        <label>WhatsApp / Teléfono</label>
+        <input type="text" id="inp-tel" placeholder="Ej: +598 099 000 000" value="">
+      </div>
+      <div class="campo">
+        <label>Instagram</label>
+        <input type="text" id="inp-ig" placeholder="@tuestética" value="@estetica.valentina">
+      </div>
+      <div class="campo">
+        <label>Dirección <span class="label-opt">opcional</span></label>
+        <input type="text" id="inp-dir" placeholder="Av. 18 de Julio 1234">
+      </div>
+      <div class="campo">
+        <label>Sitio web <span class="label-opt">opcional · Pro</span></label>
+        <input type="text" id="inp-web" placeholder="www.miestetica.com" data-plan="pro">
+      </div>
+
+    </div>
+
+    <!-- TAB: ESTILO -->
+    <div class="tab-panel" id="tab-estilo">
+
+      <div class="seccion-titulo">Colores</div>
+
+      <div class="campo">
+        <label>Color principal</label>
+        <div class="campo-color">
+          <input type="color" id="color-principal" value="#C4748A">
+          <input type="text" id="color-principal-txt" value="#C4748A" maxlength="7">
+        </div>
+        <div class="paleta-rapida" id="paleta-principal">
+          <button class="paleta-color" style="background:#C4748A" data-target="color-principal" data-val="#C4748A" title="Rosa"></button>
+          <button class="paleta-color" style="background:#7C9E8E" data-target="color-principal" data-val="#7C9E8E" title="Sage"></button>
+          <button class="paleta-color" style="background:#D4A853" data-target="color-principal" data-val="#D4A853" title="Dorado"></button>
+          <button class="paleta-color" style="background:#7B8EC8" data-target="color-principal" data-val="#7B8EC8" title="Lavanda"></button>
+          <button class="paleta-color" style="background:#C47A6B" data-target="color-principal" data-val="#C47A6B" title="Terracota"></button>
+          <button class="paleta-color" style="background:#5E9E8A" data-target="color-principal" data-val="#5E9E8A" title="Teal"></button>
+          <button class="paleta-color" style="background:#A87CB0" data-target="color-principal" data-val="#A87CB0" title="Lila"></button>
+          <button class="paleta-color" style="background:#E07B7B" data-target="color-principal" data-val="#E07B7B" title="Coral"></button>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Color de fondo</label>
+        <div class="campo-color">
+          <input type="color" id="color-fondo" value="#1A1018">
+          <input type="text" id="color-fondo-txt" value="#1A1018" maxlength="7">
+        </div>
+        <div class="paleta-rapida">
+          <button class="paleta-color" style="background:#1A1018" data-target="color-fondo" data-val="#1A1018" title="Negro violeta"></button>
+          <button class="paleta-color" style="background:#0F1923" data-target="color-fondo" data-val="#0F1923" title="Azul noche"></button>
+          <button class="paleta-color" style="background:#1C1C1C" data-target="color-fondo" data-val="#1C1C1C" title="Negro puro"></button>
+          <button class="paleta-color" style="background:#2A1F2D" data-target="color-fondo" data-val="#2A1F2D" title="Berenjela"></button>
+          <button class="paleta-color" style="background:#F7EEF1" data-target="color-fondo" data-val="#F7EEF1" title="Blanco rosa"></button>
+          <button class="paleta-color" style="background:#F5F0E8" data-target="color-fondo" data-val="#F5F0E8" title="Crema"></button>
+          <button class="paleta-color" style="background:#EDF4F1" data-target="color-fondo" data-val="#EDF4F1" title="Menta"></button>
+          <button class="paleta-color" style="background:#FFFFFF" data-target="color-fondo" data-val="#FFFFFF" title="Blanco"></button>
+        </div>
+      </div>
+
+      <div class="campo" id="campo-color-acento">
+        <label>Color acento <span class="label-opt">Pro</span></label>
+        <div class="campo-color">
+          <input type="color" id="color-acento" value="#D4A853" data-plan="pro">
+          <input type="text" id="color-acento-txt" value="#D4A853" maxlength="7" data-plan="pro">
+        </div>
+        <div class="paleta-rapida">
+          <button class="paleta-color" style="background:#D4A853" data-target="color-acento" data-val="#D4A853"></button>
+          <button class="paleta-color" style="background:#FFFFFF" data-target="color-acento" data-val="#FFFFFF"></button>
+          <button class="paleta-color" style="background:#F5C5D0" data-target="color-acento" data-val="#F5C5D0"></button>
+          <button class="paleta-color" style="background:#A8D8C4" data-target="color-acento" data-val="#A8D8C4"></button>
+          <button class="paleta-color" style="background:#C8B8E8" data-target="color-acento" data-val="#C8B8E8"></button>
+          <button class="paleta-color" style="background:#F4A460" data-target="color-acento" data-val="#F4A460"></button>
+        </div>
+      </div>
+
+      <div class="seccion-titulo" style="margin-top:20px">Tipografía <span class="label-opt">Pro</span></div>
+      <div id="fuentes-grid">
+        <!-- Generado por js/fuentes.js -->
+      </div>
+
+      <div class="seccion-titulo" style="margin-top:20px">Fondo <span class="label-opt">Pro</span></div>
+
+      <div class="fondo-tabs">
+        <button class="ftab active" data-ftab="color">Color</button>
+        <button class="ftab" data-ftab="imagen">Imagen</button>
+        <button class="ftab" data-ftab="ia">IA ✦</button>
+      </div>
+
+      <div class="ftab-panel active" id="ftab-color">
+        <p class="hint-txt">El color de fondo se configura arriba.</p>
+      </div>
+
+      <div class="ftab-panel" id="ftab-imagen">
+        <div class="logo-upload fondo-upload" id="fondo-drop">
+          <input type="file" id="fondo-input" accept="image/*" data-plan="pro">
+          <div id="fondo-preview-wrap">
+            <div class="upload-ico">🖼</div>
+            <div class="upload-txt">Subir imagen de fondo</div>
+            <div class="upload-hint">JPG, PNG · Se usará como fondo del flyer</div>
+          </div>
+        </div>
+        <button class="btn-secondary btn-sm" id="btn-quitar-fondo" style="display:none;margin-top:8px">Quitar imagen</button>
+        <div class="campo" style="margin-top:12px">
+          <label>Opacidad del fondo <span id="val-opacidad">60%</span></label>
+          <input type="range" id="fondo-opacidad" min="10" max="100" value="60" data-plan="pro">
+        </div>
+      </div>
+
+      <!-- Tab IA artístico (canvas) — renombrado honestamente -->
+      <div class="ftab-panel" id="ftab-ia">
+        <div class="ia-panel ia-panel-canvas">
+          <div class="ia-badge ia-badge-canvas">🎨 Efectos artísticos</div>
+          <p class="ia-disclaimer">Genera fondos decorativos con algoritmos gráficos. Para IA real, configurá tu API key más abajo.</p>
+          <div class="campo">
+            <label>Estilo visual</label>
+            <select id="ia-estilo">
+              <option value="degradado">Degradado Premium</option>
+              <option value="acuarela">Acuarela / Pintura</option>
+              <option value="geometrico">Geométrico</option>
+              <option value="flores">Floral</option>
+              <option value="abstracto">Abstracto</option>
+              <option value="particles">Partículas / Bokeh</option>
+              <option value="ondas">Ondas fluidas</option>
+              <option value="marmol">Mármol / Lujo</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Intensidad <span id="ia-intensidad-val">6</span></label>
+            <input type="range" id="ia-intensidad" min="1" max="10" value="6"
+              oninput="document.getElementById('ia-intensidad-val').textContent=this.value">
+          </div>
+          <button class="btn-ia" id="btn-generar-fondo">🎨 Generar efecto</button>
+          <button class="btn-secondary btn-sm" id="btn-quitar-ia" style="display:none;margin-top:8px">Quitar efecto</button>
+        </div>
+
+        <!-- Separador -->
+        <div class="ia-separador">
+          <span>o usá</span>
+        </div>
+
+        <!-- Panel IA Real → Gemini -->
+        <div class="ia-panel ia-panel-real" id="ia-panel-real">
+          <div class="ia-panel-real-header">
+            <div class="ia-badge">✦ Gemini IA</div>
+            <span class="ia-status-badge" id="ia-status-badge">○ Sin configurar</span>
+          </div>
+
+          <!-- Configuración Gemini -->
+          <details class="ia-config-details" id="ia-config-details">
+            <summary class="ia-config-summary">⚙ Configuración de Gemini <span class="label-opt">necesita key</span></summary>
+            <div class="ia-config-body">
+              <p style="font-size:11px;color:var(--text-soft);margin-bottom:10px;line-height:1.5">
+                Usá Gemini 2.0 Flash de Google para generar imágenes y paletas de colores.
+                Configurá tu API key en <strong>config.json</strong> del servidor, o ingresala abajo para usarla desde el navegador.
+              </p>
+              <div class="campo">
+                <label>
+                  <input type="checkbox" id="ia-usar-servidor" checked>
+                  Usar API key del servidor (config.json)
+                </label>
+              </div>
+              <div class="campo">
+                <label>
+                  API Key (fallback cliente)
+                  <a href="https://aistudio.google.com/apikey" target="_blank" class="ia-doc-link">Obtener gratis →</a>
+                </label>
+                <div class="ia-key-row">
+                  <input type="password" id="ia-api-key" placeholder="AIza..." autocomplete="off">
+                  <button class="btn-secondary btn-sm" id="btn-ia-guardar-key">Guardar</button>
+                </div>
+                <div class="ia-key-hint">Se guarda solo en tu navegador. Si el servidor tiene key, no hace falta.</div>
+              </div>
+              <button class="btn-secondary btn-sm" id="btn-ia-limpiar-key" style="color:var(--rosa)">Eliminar key local</button>
+            </div>
+          </details>
+
+          <div class="campo">
+            <label>Modelo Gemini</label>
+            <select id="ia-modelo-img">
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash (recomendado)</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (solo paletas)</option>
+            </select>
+            <p style="font-size:10px;color:var(--text-soft);margin-top:4px">Imágenes: gemini-2.5-flash-image</p>
+          </div>
+
+          <div class="campo">
+            <label>Describí el fondo que querés</label>
+            <textarea id="ia-img-prompt" rows="3"
+              placeholder="Ej: flores de cerezo rosas con efecto acuarela suave&#10;Ej: mármol blanco con venas doradas&#10;Ej: jardín botánico minimalista pastel"></textarea>
+          </div>
+          <button class="btn-ia" id="btn-ia-generar-img">✦ Generar fondo con Gemini</button>
+
+          <img id="ia-img-preview" style="display:none;width:100%;border-radius:8px;margin-top:10px;object-fit:cover;max-height:160px;" alt="Fondo generado">
+          <button class="btn-secondary btn-sm" id="btn-ia-real-quitar" style="display:none;margin-top:6px">Quitar fondo</button>
+
+          <div class="ia-separador-interno">Paletas de colores</div>
+
+          <button class="btn-ia btn-ia-colores" id="btn-ia-colores">✦ Sugerir paletas con Gemini</button>
+          <div class="ia-paletas-resultado" id="ia-paletas-resultado" style="display:none"></div>
+
+          <div class="ia-error" id="ia-error" style="display:none"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── ACCIONES FINALES ── -->
+    <div class="sidebar-acciones">
+      <button class="btn-generar" id="btn-generar">✦ Generar flyer</button>
+      <div class="acciones-row">
+        <button class="btn-descargar" id="btn-descargar">⬇ Descargar PNG</button>
+        <button class="btn-secondary" id="btn-guardar-historial" title="Guardar en historial">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </button>
+        <button class="btn-secondary" id="btn-preview-ig" title="Ver en feed de Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── PREVIEW ── -->
+  <div class="preview-area" id="preview-area">
+    <div class="preview-toolbar">
+      <span class="preview-label" id="preview-label">Post cuadrado · 1080×1080 px</span>
+      <div class="zoom-controls">
+        <button class="btn-zoom" id="btn-zoom-out">−</button>
+        <span id="zoom-val">50%</span>
+        <button class="btn-zoom" id="btn-zoom-in">+</button>
+      </div>
+    </div>
+    <!-- Toolbar del editor -->
+    <div class="editor-toolbar" id="editor-toolbar">
+      <button class="btn-toggle-editor" id="btn-toggle-editor">✎ Editar posiciones</button>
+      <button class="btn-secondary btn-sm" id="btn-reset-editor" title="Resetear todas las posiciones">↺ Resetear todo</button>
+      <div class="editor-hint">Arrastrá · Escalá · Rotá</div>
+    </div>
+
+    <!-- Canvas + overlay de interacción -->
+    <div class="canvas-wrap" id="canvas-wrap" style="position:relative">
+      <canvas id="flyer-canvas" width="1080" height="1080"></canvas>
+      <!-- Overlay transparente para capturar eventos del editor -->
+      <div id="editor-overlay"></div>
+    </div>
+
+    <!-- Panel de controles de edición (aparece al seleccionar elemento) -->
+    <div class="panel-edicion-wrap" id="panel-edicion-wrap">
+      <div class="panel-edicion" id="panel-edicion">
+        <p class="hint-txt" style="text-align:center">Hacé click en un elemento del flyer para seleccionarlo</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ MODAL PLANES ══ -->
+<div class="modal-overlay" id="modal-planes" style="display:none">
+  <div class="modal-planes">
+    <button class="modal-close" id="modal-planes-close">✕</button>
+    <div class="planes-header">
+      <h2>Elegí tu plan</h2>
+      <p>Creá flyers profesionales en minutos</p>
+    </div>
+    <div class="planes-grid">
+
+      <div class="plan-card" data-plan="basico">
+        <div class="plan-nombre">Básico</div>
+        <div class="plan-precio">Gratis</div>
+        <div class="plan-desc">Para empezar</div>
+        <ul class="plan-features">
+          <li class="ok">4 plantillas</li>
+          <li class="ok">2 colores configurables</li>
+          <li class="ok">Logo propio</li>
+          <li class="ok">Descarga PNG</li>
+          <li class="ok">1 formato (Post 1:1)</li>
+          <li class="no">Color acento extra</li>
+          <li class="no">Tipografías premium</li>
+          <li class="no">Imagen de fondo custom</li>
+          <li class="no">Generador IA</li>
+          <li class="no">Historial de flyers</li>
+          <li class="no">Story 9:16 y Banner</li>
+        </ul>
+        <button class="btn-plan-sel" data-plan="basico">Plan actual</button>
+      </div>
+
+      <div class="plan-card plan-destacado" data-plan="pro">
+        <div class="plan-badge-top">MÁS POPULAR</div>
+        <div class="plan-nombre">Pro</div>
+        <div class="plan-precio">$12<span>/mes</span></div>
+        <div class="plan-desc">Para profesionales</div>
+        <ul class="plan-features">
+          <li class="ok">8 plantillas</li>
+          <li class="ok">3 colores configurables</li>
+          <li class="ok">Logo propio</li>
+          <li class="ok">Descarga PNG HD</li>
+          <li class="ok">Post 1:1 + Story 9:16</li>
+          <li class="ok">Color acento extra</li>
+          <li class="ok">6 tipografías premium</li>
+          <li class="ok">Imagen de fondo custom</li>
+          <li class="ok">5 fondos IA por mes</li>
+          <li class="ok">Historial 20 flyers</li>
+          <li class="no">Banner horizontal</li>
+        </ul>
+        <button class="btn-plan-sel btn-plan-cta" data-plan="pro">Activar Pro</button>
+      </div>
+
+      <div class="plan-card" data-plan="premium">
+        <div class="plan-nombre">Premium</div>
+        <div class="plan-precio">$29<span>/mes</span></div>
+        <div class="plan-desc">Sin límites</div>
+        <ul class="plan-features">
+          <li class="ok">12+ plantillas</li>
+          <li class="ok">Colores ilimitados</li>
+          <li class="ok">Logo + marca de agua off</li>
+          <li class="ok">Descarga PNG/JPG/SVG</li>
+          <li class="ok">Todos los formatos</li>
+          <li class="ok">Color acento extra</li>
+          <li class="ok">Todas las tipografías</li>
+          <li class="ok">Imagen de fondo custom</li>
+          <li class="ok">Fondos IA ilimitados</li>
+          <li class="ok">Historial ilimitado</li>
+          <li class="ok">Banner horizontal</li>
+        </ul>
+        <button class="btn-plan-sel btn-plan-prem" data-plan="premium">Activar Premium</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL HISTORIAL ══ -->
+<div class="modal-overlay" id="modal-historial" style="display:none">
+  <div class="modal-historial">
+    <div class="modal-hist-header">
+      <h3>Historial de flyers</h3>
+      <button class="modal-close" id="modal-hist-close">✕</button>
+    </div>
+    <div id="historial-grid" class="historial-grid">
+      <!-- Miniaturas generadas por js/historial.js -->
+    </div>
+    <div class="modal-hist-footer">
+      <button class="btn-secondary" id="btn-limpiar-historial">Limpiar historial</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL PREVIEW INSTAGRAM ══ -->
+<div class="modal-overlay" id="modal-ig" style="display:none">
+  <div class="modal-ig">
+    <button class="modal-close" id="modal-ig-close">✕</button>
+    <div class="ig-mockup">
+      <div class="ig-header">
+        <div class="ig-avatar" id="ig-avatar"></div>
+        <div class="ig-user">
+          <div class="ig-username" id="ig-username">@tuestética</div>
+          <div class="ig-loc" id="ig-loc"></div>
+        </div>
+        <div class="ig-dots">···</div>
+      </div>
+      <div class="ig-img-wrap">
+        <canvas id="ig-canvas" width="540" height="540"></canvas>
+      </div>
+      <div class="ig-actions">
+        <span>♡</span><span>💬</span><span>↗</span>
+        <span style="margin-left:auto">🔖</span>
+      </div>
+      <div class="ig-likes">1,240 Me gusta</div>
+      <div class="ig-caption" id="ig-caption"><strong id="ig-cap-user">tuestética</strong> ¡Reservá tu turno!</div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts — orden de dependencia — v=4 fuerza recarga de caché -->
+<script src="js/state.js?v=16"></script>
+<script src="js/planes.js?v=16"></script>
+<script src="js/pagos.js?v=16"></script>
+<script src="js/canvas-helpers.js?v=16"></script>
+<script src="js/elementos.js?v=16"></script>
+<script src="js/editor.js?v=16"></script>
+<script src="js/templates/promo.js?v=16"></script>
+<script src="js/templates/servicios.js?v=16"></script>
+<script src="js/templates/turnos.js?v=16"></script>
+<script src="js/templates/frase.js?v=16"></script>
+<script src="js/templates/nuevo-servicio.js?v=16"></script>
+<script src="js/templates/oferta-flash.js?v=16"></script>
+<script src="js/templates/navidad.js?v=16"></script>
+<script src="js/templates/testimonio.js?v=16"></script>
+<script src="js/templates/dia-madre.js?v=16"></script>
+<script src="js/templates/minimalista.js?v=16"></script>
+<script src="js/templates/luxury.js?v=16"></script>
+<script src="js/templates/verano.js?v=16"></script>
+<script src="js/render.js?v=16"></script>
+<script src="js/plantillas.js?v=16"></script>
+<script src="js/formato.js?v=16"></script>
+<script src="js/fuentes.js?v=16"></script>
+<script src="js/colores.js?v=16"></script>
+<script src="js/upload.js?v=16"></script>
+<script src="js/ia-fondo.js?v=16"></script>
+<script src="js/ia-real.js?v=16"></script>
+<script src="js/historial.js?v=16"></script>
+<script src="js/preview-ig.js?v=16"></script>
+<script src="js/darkmode.js?v=16"></script>
+<script src="js/app.js?v=16"></script>
+</body>
+</html>
