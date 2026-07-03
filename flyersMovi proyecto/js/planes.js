@@ -107,8 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Clicks en botones de plan
   document.querySelectorAll('.btn-plan-sel').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (!btn.disabled) {
-        activarPlan(btn.dataset.plan);
+      if (btn.disabled) return;
+      const plan = btn.dataset.plan;
+      if (plan === 'basico') {
+        // Básico es gratis → activación directa (downgrade)
+        activarPlan('basico');
+      } else {
+        // Pro/Premium → checkout real de MercadoPago
+        iniciarPago(plan);
       }
     });
   });
