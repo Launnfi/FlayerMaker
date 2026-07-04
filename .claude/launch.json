@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "flyerstudio",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["flyersMovi proyecto/servidor.js"],
+      "port": 3000
+    },
+    {
+      "name": "flyerstudio-static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5599", "--directory", "flyersMovi proyecto"],
+      "port": 5599,
+      "autoPort": true
+    }
+  ]
+}
