@@ -4,6 +4,7 @@ const path = require('path');
 const cp   = require('child_process');
 const crypto = require('crypto');
 const { crearStore, crearSesiones, parseCookies, cookieHeader, crearGoogleOAuth } = require('./auth');
+const { PERMISOS, canUse } = require('./js/permisos');
 
 const ROOT = __dirname;
 const PORT = 3000;
@@ -306,6 +307,14 @@ async function rutearAPI(req, res, urlPath) {
 
   // ─── GEMINI: GENERAR IMAGEN ────────────────
   if (urlPath === '/api/gemini/generar-imagen' && req.method === 'POST') {
+    // Gatear por sesión y plan: la generación de fondos IA es de pago.
+    const usuario = usuarioActual(req);
+    if (!usuario) { jsonRes(res, 401, { error: 'Iniciá sesión para generar fondos con IA' }); return true; }
+    if (!canUse(usuario.plan, 'fondoIA')) {
+      jsonRes(res, 403, { error: 'Tu plan no incluye fondos con IA. Mejorá a Pro o Premium.' });
+      return true;
+    }
+
     if (!GEMINI_API_KEY) {
       jsonRes(res, 400, { error: 'Gemini API key no configurada en config.json' });
       return true;
@@ -360,6 +369,14 @@ async function rutearAPI(req, res, urlPath) {
 
   // ─── GEMINI: SUGERIR PALETAS ───────────────
   if (urlPath === '/api/gemini/sugerir-paletas' && req.method === 'POST') {
+    // Mismo gating que generar-imagen: función IA sólo para planes de pago.
+    const usuario = usuarioActual(req);
+    if (!usuario) { jsonRes(res, 401, { error: 'Iniciá sesión para usar sugerencias con IA' }); return true; }
+    if (!canUse(usuario.plan, 'fondoIA')) {
+      jsonRes(res, 403, { error: 'Tu plan no incluye funciones de IA. Mejorá a Pro o Premium.' });
+      return true;
+    }
+
     if (!GEMINI_API_KEY) {
       jsonRes(res, 400, { error: 'Gemini API key no configurada en config.json' });
       return true;

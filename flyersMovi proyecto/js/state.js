@@ -54,47 +54,11 @@ const State = {
     };
   },
 
+  // La matriz de permisos vive en js/permisos.js (window.PERMISOS), compartida
+  // con el servidor. Acá sólo se consulta según el plan activo.
   canUse(feature) {
-    const permisos = {
-      basico: {
-        plantillas:    ['promo','servicios','turnos','frase'],
-        fuentes:       ['playfair'],
-        formatos:      ['cuadrado'],
-        colorAcento:   false,
-        fondoImagen:   false,
-        fondoIA:       false,
-        historial:     false,
-        sitioWeb:      false,
-        maxHistorial:  0,
-        fondosIAMes:   0,
-      },
-      pro: {
-        plantillas:    ['promo','servicios','turnos','frase','nuevo-servicio','oferta-flash','navidad','testimonio'],
-        fuentes:       ['playfair','montserrat','cormorant','raleway','lato','dm-sans'],
-        formatos:      ['cuadrado','story'],
-        colorAcento:   true,
-        fondoImagen:   true,
-        fondoIA:       true,
-        historial:     true,
-        sitioWeb:      true,
-        maxHistorial:  20,
-        fondosIAMes:   5,
-      },
-      premium: {
-        plantillas:    ['promo','servicios','turnos','frase','nuevo-servicio','oferta-flash','navidad','testimonio','dia-madre','minimalista','luxury','verano'],
-        fuentes:       ['playfair','montserrat','cormorant','raleway','lato','dm-sans'],
-        formatos:      ['cuadrado','story','banner'],
-        colorAcento:   true,
-        fondoImagen:   true,
-        fondoIA:       true,
-        historial:     true,
-        sitioWeb:      true,
-        maxHistorial:  Infinity,
-        fondosIAMes:   Infinity,
-      },
-    };
-    const p = permisos[this.plan];
-    if (feature in p) return p[feature];
+    const p = (window.PERMISOS || {})[this.plan];
+    if (p && feature in p) return p[feature];
     return false;
   },
 };
