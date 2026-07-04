@@ -1,0 +1,131 @@
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE.CSS — Adaptación multi-dispositivo
+   Controlado por body[data-mode="mobile|tablet|desktop"]
+   (seteado por js/responsive.js). NO cambia lógica ni IDs:
+   solo visibilidad y layout. Todo lo oculto sigue en el DOM.
+
+   Breakpoints:
+     mobile  < 768px
+     tablet  768–1024px
+     desktop > 1024px   (sin reglas: UI actual intacta)
+   ══════════════════════════════════════════════════════ */
+
+/* ════════════════════ MOBILE ════════════════════ */
+body[data-mode="mobile"] {
+  /* Layout: una sola columna, el sidebar desaparece */
+  --_m: 1;
+}
+
+body[data-mode="mobile"] .layout {
+  grid-template-columns: 1fr;
+}
+
+/* Sidebar completo oculto (sigue en DOM: JS lo lee igual) */
+body[data-mode="mobile"] .sidebar {
+  display: none !important;
+}
+
+/* Header compacto: dejar marca + botón Crear como acción dominante.
+   Se blinda contra desborde en CUALQUIER estado de sesión (logueado o no):
+   la marca se encoge y trunca, y las acciones no hacen wrap. */
+body[data-mode="mobile"] .header {
+  padding: 0 12px;
+  gap: 8px;
+}
+body[data-mode="mobile"] .header-sub { display: none; }
+body[data-mode="mobile"] .header-brand {
+  min-width: 0;              /* permitir que se encoja dentro del flex */
+  flex: 0 1 auto;
+  overflow: hidden;
+}
+body[data-mode="mobile"] .header-titulo {
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body[data-mode="mobile"] .header-actions {
+  gap: 6px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+body[data-mode="mobile"] #btn-ver-planes,
+body[data-mode="mobile"] #btn-historial {
+  display: none;             /* reducir ruido: solo Crear + cuenta + tema */
+}
+body[data-mode="mobile"] #btn-asistente {
+  font-size: 13px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+/* Cuenta: mostrar solo el avatar (el nombre come ancho en teléfono) */
+body[data-mode="mobile"] .auth-nombre { display: none; }
+body[data-mode="mobile"] .auth-user { gap: 4px; }
+body[data-mode="mobile"] .auth-logout { padding: 4px 8px; font-size: 11px; }
+
+/* Preview = solo vista del flyer generado. Sin editor persistente. */
+body[data-mode="mobile"] .editor-toolbar { display: none !important; }
+body[data-mode="mobile"] .panel-edicion-wrap { display: none !important; }
+body[data-mode="mobile"] #editor-overlay { display: none !important; }
+body[data-mode="mobile"] .preview-area {
+  padding: 16px 12px;
+  min-height: calc(100vh - 60px);
+}
+body[data-mode="mobile"] .preview-toolbar .zoom-controls { display: none; }
+
+/* Canvas: escalar al ancho real del teléfono (override del zoom inline).
+   Cap por vw para que nunca desborde aunque render.js fije width en px. */
+body[data-mode="mobile"] #flyer-canvas {
+  width: auto !important;
+  max-width: 92vw !important;
+  height: auto !important;
+  margin: 0 auto;
+}
+body[data-mode="mobile"] .canvas-wrap {
+  max-width: 92vw;
+  margin: 0 auto;
+}
+
+/* Asistente a pantalla completa (era modal centrado 560px) */
+body[data-mode="mobile"] #modal-asistente {
+  padding: 0 !important;
+  align-items: stretch !important;
+}
+body[data-mode="mobile"] #modal-asistente > div {
+  max-width: 100% !important;
+  width: 100% !important;
+  max-height: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Los modales de planes/historial/IG también fullscreen en mobile */
+body[data-mode="mobile"] .modal-planes,
+body[data-mode="mobile"] .modal-historial,
+body[data-mode="mobile"] .modal-ig {
+  max-width: 100% !important;
+  width: 100% !important;
+  max-height: 100vh;
+  border-radius: 0 !important;
+}
+
+/* ════════════════════ TABLET ════════════════════ */
+/* Híbrido: sidebar más angosto (secundario) + editor visible pero no dominante.
+   No se colapsa a icon-rail real porque el sidebar son formularios que
+   necesitan ancho: colapsarlos a iconos rompería los controles. */
+body[data-mode="tablet"] .layout {
+  grid-template-columns: 272px 1fr;
+}
+body[data-mode="tablet"] .header { padding: 0 18px; }
+body[data-mode="tablet"] .header-sub { display: none; }
+body[data-mode="tablet"] .preview-area { padding: 20px; }
+
+/* Asistente centrado como modal (comportamiento actual, algo más ancho) */
+body[data-mode="tablet"] #modal-asistente > div {
+  max-width: 620px !important;
+}
+
+/* ════════════════════ DESKTOP ════════════════════ */
+/* Sin reglas: la UI de escritorio queda exactamente como está. */

@@ -16,8 +16,11 @@
   <link rel="stylesheet" href="css/sidebar.css">
   <link rel="stylesheet" href="css/planes.css">
   <link rel="stylesheet" href="css/historial.css">
+  <link rel="stylesheet" href="css/responsive.css?v=17">
 </head>
 <body>
+<!-- Setear el modo de dispositivo ANTES de pintar (evita flash de layout desktop en mobile) -->
+<script>(function(){try{var w=window.innerWidth;document.body.dataset.mode=w<768?'mobile':w<=1024?'tablet':'desktop';}catch(e){}})();</script>
 
 <!-- ══ HEADER ══ -->
 <header class="header">
@@ -29,6 +32,9 @@
     </div>
   </div>
   <div class="header-actions">
+    <button class="btn-plan-badge" id="btn-asistente" title="Elegí rubro, campaña y generá — en 30 segundos" style="background:var(--primary,#C4748A);color:#fff;border-color:var(--primary,#C4748A);font-weight:700">
+      ⚡ Crear publicación
+    </button>
     <div class="auth-slot" id="auth-slot"></div>
     <button class="btn-plan-badge" id="btn-ver-planes">
       <span id="plan-badge-label">Plan Básico</span>
@@ -61,15 +67,30 @@
     <!-- TAB: DISEÑO -->
     <div class="tab-panel active" id="tab-diseno">
 
-      <div class="seccion-titulo">Plantilla</div>
-      <div class="plantillas-grid" id="plantillas-grid">
-        <!-- Generado por js/plantillas.js -->
+      <!-- Campañas del rubro activo (generado por js/campanas.js) -->
+      <div class="seccion-titulo">Campaña</div>
+      <div class="plantillas-grid" id="campanas-grid">
+        <!-- Generado por js/campanas.js -->
       </div>
 
-      <div class="seccion-titulo" style="margin-top:20px">Formato</div>
-      <div class="formato-btns" id="formato-btns">
-        <!-- Generado por js/formato.js -->
-      </div>
+      <!-- Generador de campaña completa (js/campaign-package.js) -->
+      <button class="btn-secondary" id="btn-paquete" style="width:100%;margin-top:12px">📦 Generar campaña completa</button>
+
+      <!-- Plantilla + Formato: opciones avanzadas, ocultas por defecto para simplificar
+           la entrada. Siguen en el DOM (plantillas.js / formato.js las siguen usando). -->
+      <details class="avanzado" style="margin-top:16px">
+        <summary style="cursor:pointer;font-size:12px;opacity:.7;padding:6px 0;user-select:none">⚙ Opciones avanzadas (plantilla y formato)</summary>
+
+        <div class="seccion-titulo" style="margin-top:12px">Plantilla</div>
+        <div class="plantillas-grid" id="plantillas-grid">
+          <!-- Generado por js/plantillas.js -->
+        </div>
+
+        <div class="seccion-titulo" style="margin-top:20px">Formato</div>
+        <div class="formato-btns" id="formato-btns">
+          <!-- Generado por js/formato.js -->
+        </div>
+      </details>
 
       <div class="seccion-titulo" style="margin-top:20px">Contenido</div>
       <div id="campos-contenido">
@@ -81,8 +102,18 @@
     <!-- TAB: NEGOCIO -->
     <div class="tab-panel" id="tab-negocio">
 
-      <!-- Selector de industria (generado por js/industrias.js) -->
-      <div id="industria-selector"></div>
+      <!-- Brand Kit: identidad de marca persistente (js/brand-kit.js) -->
+      <button class="btn-secondary" id="btn-brand-kit" style="width:100%;margin-bottom:8px">🎨 Brand Kit — guardá tu marca</button>
+
+      <!-- Biblioteca de productos/servicios (js/business-library.js) -->
+      <button class="btn-secondary" id="btn-biblioteca" style="width:100%;margin-bottom:16px">📚 Biblioteca — productos y servicios</button>
+
+      <!-- Selector de rubro / tipo de negocio (generado por js/business-types.js) -->
+      <div id="rubro-selector"></div>
+
+      <!-- Selector de industria: OCULTO. Redundante con Rubro (aplicarRubro ya aplica la
+           industria vía industriaRef). Sigue en el DOM porque industrias.js lo rellena. -->
+      <div id="industria-selector" style="display:none"></div>
 
       <div class="seccion-titulo" style="margin-top:20px">Logo</div>
       <div class="logo-upload" id="logo-drop">
@@ -127,7 +158,14 @@
     <!-- TAB: ESTILO -->
     <div class="tab-panel" id="tab-estilo">
 
-      <div class="seccion-titulo">Colores</div>
+      <p class="campo-hint" style="margin-bottom:12px">Los colores y el estilo se aplican automáticamente según tu rubro. Ajustá algo solo si querés.</p>
+
+      <!-- Todo lo manual (colores, tipografía, fondo, Gemini) colapsado por defecto.
+           Sigue en el DOM: colores.js / fuentes.js / ia-*.js lo usan igual. -->
+      <details class="avanzado">
+        <summary style="cursor:pointer;font-weight:600;padding:8px 0;user-select:none">⚙ Ajustes avanzados</summary>
+
+      <div class="seccion-titulo" style="margin-top:8px">Colores</div>
 
       <div class="campo">
         <label>Color principal</label>
@@ -310,6 +348,8 @@
         </div>
       </div>
 
+      </details>
+
     </div>
 
     <!-- TAB: CONFIG -->
@@ -489,6 +529,7 @@
 <!-- Scripts — orden de dependencia — v=4 fuerza recarga de caché -->
 <script src="js/state.js?v=16"></script>
 <script src="js/industrias.js?v=16"></script>
+<script src="js/business-types.js?v=16"></script>
 <script src="js/theme.js?v=16"></script>
 <script src="js/planes.js?v=16"></script>
 <script src="js/pagos.js?v=16"></script>
@@ -510,6 +551,8 @@
 <script src="js/templates/verano.js?v=16"></script>
 <script src="js/render.js?v=16"></script>
 <script src="js/plantillas.js?v=16"></script>
+<script src="js/campanas.js?v=16"></script>
+<script src="js/asistente.js?v=16"></script>
 <script src="js/formato.js?v=16"></script>
 <script src="js/fuentes.js?v=16"></script>
 <script src="js/colores.js?v=16"></script>
@@ -520,5 +563,10 @@
 <script src="js/preview-ig.js?v=16"></script>
 <script src="js/darkmode.js?v=16"></script>
 <script src="js/app.js?v=16"></script>
+<script src="js/brand-kit.js?v=16"></script>
+<script src="js/business-library.js?v=16"></script>
+<script src="js/ia-campanas.js?v=16"></script>
+<script src="js/campaign-package.js?v=16"></script>
+<script src="js/responsive.js?v=16"></script>
 </body>
 </html>
