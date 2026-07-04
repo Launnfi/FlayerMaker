@@ -6,6 +6,10 @@ flyersMovi proyecto/config.json
 usuarios.json
 flyersMovi proyecto/usuarios.json
 
+# Comprimidos — pueden contener config.json u otros secretos
+*.rar
+*.zip
+
 # Node
 node_modules/
 npm-debug.log*
