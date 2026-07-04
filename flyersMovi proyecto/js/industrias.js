@@ -11,7 +11,7 @@ const INDUSTRIAS = {
     nombre: 'Estética / Belleza',
     ico: '💅',
     headerSub: 'Diseños profesionales para estéticas',
-    // Frase que se inserta en el prompt de imagen de Gemini (español)
+    // Frase que se inserta en el prompt de imagen de Hugging Face (español)
     promptImagen: 'estética de belleza',
     // Tema por defecto (inglés) cuando el usuario no escribe nada
     promptImagenBase: 'elegant abstract background for a luxury beauty salon',

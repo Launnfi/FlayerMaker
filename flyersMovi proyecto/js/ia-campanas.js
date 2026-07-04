@@ -13,8 +13,8 @@
        Promise<{ titulo, subtitulo, cta, descripcion, hashtags[], emojis[] }>
 
    El objeto es compatible con el asistente: contenidoAValores() lo
-   mapea a los campos del wizard. Si hay API key de Gemini se usa;
-   si no, un fallback local arma buen copy con el mismo contexto.
+   mapea a los campos del wizard. Usa Hugging Face (si hay token) para
+   el copy real; ante cualquier fallo, un fallback local arma buen copy.
 
    NO toca render, plantillas ni editor. Sólo texto.
    ══════════════════════════════════════════════════════ */
@@ -41,10 +41,10 @@ function _iaContexto({ campana = null, item = null, rubro = null, brand = null }
 async function generateCampaignContent(opts = {}) {
   const ctx = _iaContexto(opts);
 
-  // Si hay API key de Gemini, intentar copy real; ante cualquier fallo, fallback.
-  if (typeof IAState !== 'undefined' && IAState.tieneKey && IAState.tieneKey()) {
+  // Si hay token de Hugging Face, intentar copy real; ante cualquier fallo, fallback local.
+  if (typeof IAState !== 'undefined' && IAState.tieneToken && IAState.tieneToken()) {
     try {
-      const r = await _iaGeminiCopy(ctx);
+      const r = await _iaHuggingFaceCopy(ctx);
       if (r && r.titulo) return _normalizarContenido(r);
     } catch (e) {
       console.warn('IA campaña: usando fallback local —', e.message);
@@ -64,11 +64,12 @@ function _normalizarContenido(o) {
   };
 }
 
-// ── Gemini (cliente directo, mismo patrón que ia-real.js) ──
-async function _iaGeminiCopy(ctx) {
-  const modelo = (typeof IAState !== 'undefined' && IAState.modelo) || 'gemini-2.0-flash';
+// ── Hugging Face (cliente directo, mismo patrón que ia-real.js) ──
+async function _iaHuggingFaceCopy(ctx) {
   const rubroNombre = ctx.rubro.nombre || 'negocio';
   const estilo = (ctx.rubro.estilos || []).join(', ') || 'profesional';
+  const token = (typeof IAState !== 'undefined' && IAState.token) || '';
+  const modelo = (typeof HF_TEXT_MODEL !== 'undefined') ? HF_TEXT_MODEL : 'meta-llama/Llama-3.1-8B-Instruct';
   const prompt =
     `Sos un experto en marketing para ${rubroNombre}. Generá el copy de una campaña de tipo ` +
     `"${ctx.campana.nombre || 'promoción'}" para el negocio "${ctx.negocio}"` +
@@ -80,22 +81,22 @@ async function _iaGeminiCopy(ctx) {
     `{"titulo":"máx 4 palabras","subtitulo":"máx 6 palabras","cta":"llamada a la acción corta",` +
     `"descripcion":"1-2 líneas","hashtags":["#uno","#dos","#tres"],"emojis":["✨","🔥"]}`;
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${IAState.apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: 500 },
-      }),
-    }
-  );
+  const res = await fetch('https://router.huggingface.co/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      model: modelo,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || 'Error Gemini');
-  const text  = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  if (!res.ok) throw new Error(data.error?.message || data.error || 'Error Hugging Face');
+  const text  = data.choices?.[0]?.message?.content || '';
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Gemini no devolvió JSON');
+  if (!match) throw new Error('Hugging Face no devolvió JSON');
   return JSON.parse(match[0]);
 }
 

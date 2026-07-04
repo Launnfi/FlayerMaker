@@ -10,13 +10,27 @@ const ROOT = __dirname;
 const PORT = 3000;
 
 // ── Cargar configuración ──
-let CONFIG = { mercadopago_access_token: '', gemini_api_key: '' };
+let CONFIG = { mercadopago_access_token: '', huggingface_token: '' };
 try {
   CONFIG = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8'));
 } catch { /* usar defaults */ }
 
 const MP_ACCESS_TOKEN = CONFIG.mercadopago_access_token || '';
-const GEMINI_API_KEY  = CONFIG.gemini_api_key || '';
+// Hugging Face Inference: necesita token (hf_...). Se obtiene en huggingface.co/settings/tokens
+const HF_TOKEN = CONFIG.huggingface_token || '';
+// Modelo de texto para paletas/copy (chat completions vía router de HF).
+const HF_TEXT_MODEL = CONFIG.huggingface_text_model || 'meta-llama/Llama-3.1-8B-Instruct';
+// Providers de imagen a probar en orden (endpoint OpenAI-style images/generations).
+// hf-inference deprecó FLUX; estos sí lo sirven vía el router de HF.
+const HF_IMAGE_PROVIDERS = CONFIG.huggingface_image_providers || ['together', 'nscale'];
+
+// Detecta el MIME de una imagen a partir de sus primeros bytes en base64.
+function mimeDesdeBase64(b64) {
+  if (b64.startsWith('iVBORw0KGgo')) return 'image/png';
+  if (b64.startsWith('/9j/'))        return 'image/jpeg';
+  if (b64.startsWith('UklGR'))       return 'image/webp';
+  return 'image/png';
+}
 // URL pública de la app (para las back_urls de MercadoPago). En local queda
 // localhost; en producción poné el dominio https real en config.json (app_url).
 const APP_URL = (CONFIG.app_url || `http://localhost:${PORT}`).replace(/\/$/, '');
@@ -305,8 +319,8 @@ async function rutearAPI(req, res, urlPath) {
     return true;
   }
 
-  // ─── GEMINI: GENERAR IMAGEN ────────────────
-  if (urlPath === '/api/gemini/generar-imagen' && req.method === 'POST') {
+  // ─── HUGGING FACE: GENERAR IMAGEN ──────────
+  if (urlPath === '/api/ia/generar-imagen' && req.method === 'POST') {
     // Gatear por sesión y plan: la generación de fondos IA es de pago.
     const usuario = usuarioActual(req);
     if (!usuario) { jsonRes(res, 401, { error: 'Iniciá sesión para generar fondos con IA' }); return true; }
@@ -321,8 +335,8 @@ async function rutearAPI(req, res, urlPath) {
       return true;
     }
 
-    if (!GEMINI_API_KEY) {
-      jsonRes(res, 400, { error: 'Gemini API key no configurada en config.json' });
+    if (!HF_TOKEN) {
+      jsonRes(res, 400, { error: 'Hugging Face token no configurado en config.json' });
       return true;
     }
 
@@ -330,53 +344,47 @@ async function rutearAPI(req, res, urlPath) {
     // El cliente (construirPromptImagen) ya arma el prompt completo con la industria.
     // Se usa tal cual; sólo hay un fallback genérico si llega vacío.
     const prompt = body.prompt
-      || 'Generá una imagen de fondo abstracto y profesional para un flyer. Sin texto, sin caras, sin logos. Formato cuadrado.';
+      || 'Fondo abstracto y profesional para un flyer. Sin texto, sin caras, sin logos. Formato cuadrado.';
+    const modelo = body.modelo || 'black-forest-labs/FLUX.1-schnell';
 
-    // Probar modelos con soporte de imagen
-    const modelosAProbar = ['gemini-2.5-flash-image', 'gemini-3.1-flash-image-preview', 'gemini-3-pro-image-preview'];
-
-    for (const modelo of modelosAProbar) {
+    // Endpoint OpenAI-style images/generations vía el router de HF. Se prueban
+    // varios providers en orden porque no todos sirven cada modelo.
+    let ultimoError = 'Ningún provider de Hugging Face pudo generar la imagen.';
+    for (const provider of HF_IMAGE_PROVIDERS) {
       try {
-        const gemRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{ text: prompt }],
-              }],
-              generationConfig: {
-                responseModalities: ['IMAGE', 'TEXT'],
-              },
-            }),
-          }
-        );
+        const hfRes = await fetch(`https://router.huggingface.co/${provider}/v1/images/generations`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${HF_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ model: modelo, prompt, response_format: 'b64_json' }),
+        });
 
-        const data = await gemRes.json();
-        if (!gemRes.ok) {
-          const msg = data.error?.message || '';
-          if (msg.includes('not support') || msg.includes('not found')) continue;
-          jsonRes(res, 500, { error: msg });
-          return true;
+        const data = await hfRes.json().catch(() => ({}));
+        if (!hfRes.ok) {
+          ultimoError = data.error?.message || data.error || `provider ${provider} respondió ${hfRes.status}`;
+          continue; // probar el siguiente provider
         }
 
-        const part = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData?.mimeType?.startsWith('image/'));
-        if (part) {
-          // Sólo se consume cupo cuando Gemini devuelve una imagen válida.
-          Usuarios.incrementarIA(usuario.id);
-          jsonRes(res, 200, { mimeType: part.inlineData.mimeType, data: part.inlineData.data });
-          return true;
-        }
-      } catch { continue; }
+        const b64 = data.data?.[0]?.b64_json;
+        if (!b64) { ultimoError = `provider ${provider} no devolvió imagen`; continue; }
+
+        // Sólo se consume cupo cuando HF devuelve una imagen válida.
+        Usuarios.incrementarIA(usuario.id);
+        jsonRes(res, 200, { mimeType: mimeDesdeBase64(b64), data: b64 });
+        return true;
+      } catch (err) {
+        ultimoError = err.message;
+      }
     }
 
-    jsonRes(res, 500, { error: 'Ningún modelo Gemini disponible soporta generación de imágenes. Usá Pollinations o configurá Vertex AI.' });
+    jsonRes(res, 500, { error: `Hugging Face: ${ultimoError}` });
     return true;
   }
 
-  // ─── GEMINI: SUGERIR PALETAS ───────────────
-  if (urlPath === '/api/gemini/sugerir-paletas' && req.method === 'POST') {
+  // ─── HUGGING FACE: SUGERIR PALETAS ─────────
+  if (urlPath === '/api/ia/sugerir-paletas' && req.method === 'POST') {
     // Mismo gating que generar-imagen: función IA sólo para planes de pago.
     const usuario = usuarioActual(req);
     if (!usuario) { jsonRes(res, 401, { error: 'Iniciá sesión para usar sugerencias con IA' }); return true; }
@@ -385,8 +393,8 @@ async function rutearAPI(req, res, urlPath) {
       return true;
     }
 
-    if (!GEMINI_API_KEY) {
-      jsonRes(res, 400, { error: 'Gemini API key no configurada en config.json' });
+    if (!HF_TOKEN) {
+      jsonRes(res, 400, { error: 'Hugging Face token no configurado en config.json' });
       return true;
     }
 
@@ -395,35 +403,32 @@ async function rutearAPI(req, res, urlPath) {
     const brandingRol = body.brandingRol || 'salones de belleza';
 
     try {
-      const gemRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Sos un diseñador experto en branding para ${brandingRol}. Sugerí 4 paletas de colores distintas y elegantes para el negocio "${negocio}". Respondé SOLO con JSON válido, sin texto extra ni markdown. Formato: {"paletas":[{"nombre":"string","principal":"#HEX","fondo":"#HEX","acento":"#HEX","descripcion":"máx 8 palabras"}]}`,
-              }],
-            }],
-            generationConfig: {
-              temperature: 0.85,
-              maxOutputTokens: 600,
-            },
-          }),
-        }
-      );
+      // Chat completions compatible con OpenAI vía router de HF.
+      const hfRes = await fetch('https://router.huggingface.co/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${HF_TOKEN}`,
+        },
+        body: JSON.stringify({
+          model: HF_TEXT_MODEL,
+          messages: [{
+            role: 'user',
+            content: `Sos un diseñador experto en branding para ${brandingRol}. Sugerí 4 paletas de colores distintas y elegantes para el negocio "${negocio}". Respondé SOLO con JSON válido, sin texto extra ni markdown. Formato: {"paletas":[{"nombre":"string","principal":"#HEX","fondo":"#HEX","acento":"#HEX","descripcion":"máx 8 palabras"}]}`,
+          }],
+        }),
+      });
 
-      const data = await gemRes.json();
-      if (!gemRes.ok) {
-        jsonRes(res, 500, { error: data.error?.message || 'Error Gemini' });
+      const data = await hfRes.json();
+      if (!hfRes.ok) {
+        jsonRes(res, 500, { error: data.error?.message || data.error || `Error Hugging Face ${hfRes.status}` });
         return true;
       }
 
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const text = data.choices?.[0]?.message?.content || '';
       const match = text.match(/\{[\s\S]*\}/);
       if (!match) {
-        jsonRes(res, 500, { error: 'Gemini no devolvió JSON válido' });
+        jsonRes(res, 500, { error: 'Hugging Face no devolvió JSON válido' });
         return true;
       }
 

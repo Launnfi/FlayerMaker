@@ -1,7 +1,7 @@
 # FlayerMaker
 
 SaaS para crear flyers rápido y fácil. Editor de flyers en el navegador con
-plantillas por industria, kit de marca, generación de fondos con IA (Gemini) y
+plantillas por industria, kit de marca, generación de fondos con IA (Hugging Face) y
 suscripciones pagas vía MercadoPago. Login con Google y planes vinculados a la
 cuenta del usuario.
 
@@ -11,7 +11,7 @@ cuenta del usuario.
 - **Auth:** Google OAuth 2.0 sin librerías + store de usuarios en JSON — [`flyersMovi proyecto/auth.js`](flyersMovi%20proyecto/auth.js)
 - **Front:** HTML + CSS + JavaScript vanilla (sin bundler), scripts en [`flyersMovi proyecto/js/`](flyersMovi%20proyecto/js)
 - **Pagos:** MercadoPago (checkout preferences + webhook), precios en UYU
-- **IA:** Google Gemini (generación de fondos y sugerencia de paletas)
+- **IA:** Hugging Face Inference (FLUX.1 / SDXL para fondos, chat para paletas)
 - **Permisos por plan:** matriz única en [`flyersMovi proyecto/js/permisos.js`](flyersMovi%20proyecto/js/permisos.js), compartida entre servidor y front
 
 ## Correr en local
@@ -32,7 +32,7 @@ Credenciales en `config.json`:
 |-------|----------|
 | `mercadopago_access_token` | Crear preferencias y verificar pagos |
 | `mercadopago_public_key` | Checkout en el front |
-| `gemini_api_key` | Fondos IA y sugerencia de paletas |
+| `huggingface_token` | Fondos IA y paletas (token de huggingface.co/settings/tokens) |
 | `google_client_id` / `google_client_secret` | Login con Google |
 | `app_secret` | Firmar cookies de sesión (`crypto.randomBytes(32).toString('hex')`) |
 | `app_url` | URL pública en producción (opcional; en local usa localhost) |
@@ -55,7 +55,7 @@ vez en [`js/permisos.js`](flyersMovi%20proyecto/js/permisos.js).
 | Historial | ✗ | 20 | ∞ |
 | Sitio web | ✗ | ✓ | ✓ |
 
-Los endpoints de IA (`/api/gemini/*`) exigen sesión iniciada (401), plan con IA
+Los endpoints de IA (`/api/ia/*`) exigen sesión iniciada (401), plan con IA
 habilitada (403) y respetan el cupo mensual (429).
 
 ## Configuración de secretos
@@ -68,7 +68,7 @@ habilitada (403) y respetan el cupo mensual (429).
 - Partí siempre de `config.example.json` (solo placeholders) y copialo a
   `config.json` local.
 - Si un secreto se filtró en un commit, rotá la credencial en el proveedor
-  (MercadoPago / Google / Gemini) además de removerla del repo.
+  (MercadoPago / Google / Hugging Face) además de removerla del repo.
 
 ## Capturas
 
