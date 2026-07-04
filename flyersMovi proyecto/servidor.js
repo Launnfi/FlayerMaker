@@ -314,6 +314,12 @@ async function rutearAPI(req, res, urlPath) {
       jsonRes(res, 403, { error: 'Tu plan no incluye fondos con IA. Mejorá a Pro o Premium.' });
       return true;
     }
+    // Cupo mensual de fondos IA según el plan (básico 0, pro 5, premium ∞).
+    const cupo = canUse(usuario.plan, 'fondosIAMes');
+    if (Usuarios.getIAUsage(usuario.id) >= cupo) {
+      jsonRes(res, 429, { error: `Alcanzaste tu cupo mensual de fondos IA (${cupo}). Se renueva el mes que viene o mejorá tu plan.` });
+      return true;
+    }
 
     if (!GEMINI_API_KEY) {
       jsonRes(res, 400, { error: 'Gemini API key no configurada en config.json' });
@@ -357,6 +363,8 @@ async function rutearAPI(req, res, urlPath) {
 
         const part = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData?.mimeType?.startsWith('image/'));
         if (part) {
+          // Sólo se consume cupo cuando Gemini devuelve una imagen válida.
+          Usuarios.incrementarIA(usuario.id);
           jsonRes(res, 200, { mimeType: part.inlineData.mimeType, data: part.inlineData.data });
           return true;
         }

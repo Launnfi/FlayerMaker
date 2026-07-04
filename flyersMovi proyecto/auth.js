@@ -8,9 +8,16 @@ const path   = require('path');
 const crypto = require('crypto');
 
 // ── Store de usuarios en archivo JSON ──
-// Estructura: { users: [ { id, googleId, email, nombre, picture, plan, createdAt, updatedAt } ] }
+// Estructura: { users: [ { id, googleId, email, nombre, picture, plan,
+//   iaMes, iaCount, createdAt, updatedAt } ] }
+// iaMes ("YYYY-MM") + iaCount llevan el consumo de fondos IA del mes en curso.
 function crearStore(rootDir) {
   const FILE = path.join(rootDir, 'usuarios.json');
+
+  // Mes actual como "YYYY-MM" para el reseteo del cupo mensual de IA.
+  function mesActual() {
+    return new Date().toISOString().slice(0, 7);
+  }
 
   function cargar() {
     try { return JSON.parse(fs.readFileSync(FILE, 'utf8')); }
@@ -63,6 +70,25 @@ function crearStore(rootDir) {
       u.updatedAt = new Date().toISOString();
       guardar(data);
       return u;
+    },
+    // Generaciones de fondos IA consumidas en el mes en curso (0 si cambió el mes).
+    getIAUsage(userId) {
+      const u = cargar().users.find(x => x.id === userId);
+      if (!u) return 0;
+      return u.iaMes === mesActual() ? (u.iaCount || 0) : 0;
+    },
+    // Suma 1 al contador de IA del mes (reseteando al cambiar de mes). Devuelve
+    // el nuevo total, o null si el usuario no existe.
+    incrementarIA(userId) {
+      const data = cargar();
+      const u = data.users.find(x => x.id === userId);
+      if (!u) return null;
+      const mes = mesActual();
+      if (u.iaMes !== mes) { u.iaMes = mes; u.iaCount = 0; }
+      u.iaCount = (u.iaCount || 0) + 1;
+      u.updatedAt = new Date().toISOString();
+      guardar(data);
+      return u.iaCount;
     },
   };
 }
