@@ -348,6 +348,46 @@ function dibujarHandlesElemento(ctx, el) {
 }
 
 // ═══════════════════════════════════
+//  EDICIÓN DE TEXTO INLINE
+//  Cada elemento de texto lee su contenido de un input del formulario.
+//  Este resolver mapea id de elemento → input fuente (según las plantillas).
+// ═══════════════════════════════════
+function inputDeElemento(elId) {
+  const alias = {
+    negocio: 'inp-negocio', slogan: 'inp-slogan',
+    descripcion: 'c-desc', lista: 'c-servicios',
+    precio: 'c-precio', descuento: 'c-precio', oferta: 'c-precio',
+    badge: 'c-badge',
+  };
+  const cands = [];
+  if (alias[elId]) cands.push(alias[elId]);
+  cands.push('c-' + elId, 'inp-' + elId);
+  if (elId === 'badge') cands.push('c-precio'); // badges de otras plantillas
+  for (const id of cands) {
+    const e = document.getElementById(id);
+    if (e) return e;
+  }
+  return null;
+}
+
+// Actualiza el texto del elemento cambiando su input fuente y re-renderizando.
+// No re-renderiza el panel (para no perder el foco/caret del textarea).
+// Los <input> de una línea borran los \n al asignarlos, así que en ese caso
+// guardamos el salto como U+2028 (que el navegador conserva) y envolverLineas
+// lo interpreta igual que un \n al dibujar.
+function editarTextoElemento(elId, valor) {
+  const input = inputDeElemento(elId);
+  if (!input) return;
+  const esInput = input.tagName === 'INPUT';
+  input.value = esInput ? valor.replace(/\n/g, String.fromCharCode(0x2028)) : valor;
+  generarFlyer();
+}
+
+function _escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ═══════════════════════════════════
 //  PANEL DE EDICIÓN (sidebar inferior)
 // ═══════════════════════════════════
 function actualizarPanelEdicion(el) {
@@ -367,6 +407,12 @@ function actualizarPanelEdicion(el) {
   // Solo mostrar fondo en elementos de texto (no logo ni footer)
   const esSoloTexto = el.tipo === 'texto' || el.tipo === 'badge';
 
+  // ¿Se puede editar el texto? (tiene un input fuente resoluble)
+  const inputFuente = esSoloTexto ? inputDeElemento(el.id) : null;
+  const puedeTexto  = !!inputFuente;
+  // Los saltos guardados como U+2028 (en inputs de una línea) se muestran como \n.
+  const valorTexto  = inputFuente ? inputFuente.value.split(String.fromCharCode(0x2028)).join('\n') : '';
+
   panel.innerHTML = `
     <div class="editor-elem-header">
       <span class="editor-elem-label">${el.label}</span>
@@ -375,12 +421,25 @@ function actualizarPanelEdicion(el) {
 
     <!-- TABS del panel -->
     <div class="panel-tabs">
-      <button class="ptab active" data-ptab="transform" onclick="switchPanelTab(this)">Posición</button>
+      ${puedeTexto ? `<button class="ptab active" data-ptab="texto" onclick="switchPanelTab(this)">Texto</button>` : ''}
+      <button class="ptab ${puedeTexto ? '' : 'active'}" data-ptab="transform" onclick="switchPanelTab(this)">Posición</button>
       ${esSoloTexto ? `<button class="ptab" data-ptab="fondo" onclick="switchPanelTab(this)">Fondo / Marco</button>` : ''}
     </div>
 
+    ${puedeTexto ? `
+    <!-- TAB: Texto -->
+    <div class="ptab-panel active" id="ptab-texto">
+      <div class="editor-texto-wrap">
+        <label class="editor-texto-label">Contenido</label>
+        <textarea class="editor-texto-input" rows="3" placeholder="Escribí el texto..."
+          oninput="editarTextoElemento('${el.id}', this.value)">${_escHtml(valorTexto)}</textarea>
+        <p class="hint-txt" style="font-size:10px;margin-top:4px">Enter = salto de línea. Se actualiza al escribir.</p>
+      </div>
+    </div>
+    ` : ''}
+
     <!-- TAB: Transformación -->
-    <div class="ptab-panel active" id="ptab-transform">
+    <div class="ptab-panel ${puedeTexto ? '' : 'active'}" id="ptab-transform">
       <div class="editor-controles">
         <div class="editor-control-row">
           <label>X <span class="editor-val">${Math.round(el.x)}</span></label>

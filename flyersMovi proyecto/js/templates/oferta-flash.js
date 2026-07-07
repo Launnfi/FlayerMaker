@@ -26,9 +26,7 @@ function dibujarOfertaFlash(ctx, W, H, d) {
 
   dibujarBloque(ctx,'negocio',W/2,H*.24,(ctx,m)=>{
     const sz=H<700?32:42; ctx.font=`700 ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const w=ctx.measureText(d.negocio).width,h=sz+8;
-    if(!m){ctx.fillStyle='#FFF';ctx.fillText(d.negocio,0,0);}
-    return {w,h};
+    return pintarMultilinea(ctx, d.negocio, W*0.86, sz+8, '#FFF', m);
   });
 
   dibujarBloque(ctx,'titulo',W/2,H*.42,(ctx,m)=>{
@@ -57,7 +55,7 @@ function dibujarOfertaFlash(ctx, W, H, d) {
 
   if(desc) dibujarBloque(ctx,'descripcion',W/2,H*.85,(ctx,m)=>{
     const sz=24; const lh=36; ctx.font=`400 ${sz}px '${fBody}',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const lines=desc.split('\n').filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
+    const lines=envolverLineas(ctx, desc, W*0.86).filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle='#FFF';lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh};
   });

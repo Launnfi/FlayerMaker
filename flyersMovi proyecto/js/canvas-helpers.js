@@ -345,21 +345,29 @@ function dibujarFondoElemento(ctx, fondo, anchoTexto, altoTexto) {
     }
 
     case 'sombra-texto': {
-      ctx.shadowColor   = hexToRgba(fondo.colorSombra || '#000000', op);
-      ctx.shadowBlur    = fondo.difusion ?? 20;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-      // No dibuja caja, la sombra se aplica al texto que viene después
-      // Solo seteamos la sombra en ctx, el restore del caller la limpia
+      // Drop shadow: oscuro, blur medio y DESPLAZADO hacia abajo (da profundidad).
+      const blur = fondo.difusion ?? 18;
       ctx.restore();
-      return;   // salir sin restore doble
+      return { shadow: {
+        color:   hexToRgba(fondo.colorSombra || '#000000', op),
+        blur,
+        offsetX: 0,
+        offsetY: Math.max(3, Math.round(blur * 0.45)),
+        passes:  1,
+      } };
     }
 
     case 'neon': {
-      ctx.shadowColor = hexToRgba(fondo.colorSombra || col, 1);
-      ctx.shadowBlur  = fondo.difusion ?? 30;
+      // Glow: color brillante, SIN desplazamiento y redibujado varias veces
+      // para acumular intensidad (efecto de letrero de neón).
       ctx.restore();
-      return;
+      return { shadow: {
+        color:   hexToRgba(fondo.colorSombra || col, 1),
+        blur:    fondo.difusion ?? 26,
+        offsetX: 0,
+        offsetY: 0,
+        passes:  3,
+      } };
     }
 
     case 'subrayado': {
@@ -395,6 +403,47 @@ function dibujarFondoElemento(ctx, fondo, anchoTexto, altoTexto) {
   }
 
   ctx.restore();
+}
+
+// ── Word-wrap: corta el texto en líneas que quepan en maxWidth ──
+// Respeta los saltos manuales (\n) y además parte por palabras cuando una
+// línea excede el ancho disponible (así el texto largo baja en vez de salirse).
+// Requiere que ctx.font ya esté seteado (se mide con la fuente activa).
+function envolverLineas(ctx, texto, maxWidth) {
+  // Corta por salto normal (\n, de textareas) y por U+2028 (saltos guardados
+  // en inputs de una línea, que el navegador no borra como sí borra \n).
+  const parrafos = String(texto ?? '').replace(/\u2028/g, '\n').split('\n');
+  const salida = [];
+  for (const p of parrafos) {
+    const palabras = p.split(/\s+/).filter(Boolean);
+    if (!palabras.length) { salida.push(''); continue; }
+    let linea = '';
+    for (const w of palabras) {
+      const prueba = linea ? linea + ' ' + w : w;
+      if (linea && ctx.measureText(prueba).width > maxWidth) {
+        salida.push(linea);
+        linea = w;
+      } else {
+        linea = prueba;
+      }
+    }
+    if (linea) salida.push(linea);
+  }
+  return salida;
+}
+
+// ── Dibuja texto multilínea (respeta \n y envuelve por ancho), centrado
+// verticalmente respecto al origen. Devuelve {w,h} para el hit-box/fondo.
+// El ctx ya debe tener font/textAlign/textBaseline seteados por la plantilla.
+function pintarMultilinea(ctx, texto, maxWidth, lineHeight, color, medir) {
+  const lines = envolverLineas(ctx, texto, maxWidth).filter(Boolean);
+  if (!lines.length) return { w: 1, h: lineHeight };
+  const mW = Math.max(...lines.map(l => ctx.measureText(l).width), 1);
+  if (!medir) {
+    if (color) ctx.fillStyle = color;
+    lines.forEach((l, i) => ctx.fillText(l, 0, (i - (lines.length - 1) / 2) * lineHeight));
+  }
+  return { w: mW, h: lines.length * lineHeight };
 }
 
 // ── Mide el texto de un elemento para calcular el tamaño del fondo ──
@@ -438,15 +487,35 @@ function dibujarBloque(ctx, elId, defX, defY, drawFn) {
   // Medir primero (sin dibujar)
   const { w, h } = drawFn(ctx, true) || { w: 200, h: 60 };
 
-  // Dibujar fondo/marco
+  // Dibujar fondo/marco. Los tipos 'sombra-texto'/'neon' no dibujan caja:
+  // devuelven una sombra que debe aplicarse al texto que se dibuja después.
+  let efectoFondo;
   if (typeof ElementosState !== 'undefined') {
-    dibujarFondoElemento(ctx, ElementosState.getFondo(elId), w, h);
+    efectoFondo = dibujarFondoElemento(ctx, ElementosState.getFondo(elId), w, h);
   }
 
-  // Dibujar contenido (también con sombra limpia para que el fondo no interfiera)
-  ctx.shadowColor = 'transparent';
-  ctx.shadowBlur  = 0;
-  drawFn(ctx, false);
+  // Dibujar contenido. Si el fondo pidió sombra sobre el texto, la aplicamos;
+  // si no, limpiamos para que el fondo no contamine el texto.
+  if (efectoFondo?.shadow) {
+    const s = efectoFondo.shadow;
+    ctx.shadowColor   = s.color;
+    ctx.shadowBlur    = s.blur;
+    ctx.shadowOffsetX = s.offsetX || 0;
+    ctx.shadowOffsetY = s.offsetY || 0;
+    // Varias pasadas acumulan el glow (neón). Una sola pasada = drop shadow.
+    const passes = s.passes || 1;
+    for (let i = 0; i < passes; i++) drawFn(ctx, false);
+    // Pasada final nítida encima (sin sombra) para que las letras queden limpias.
+    if (passes > 1) {
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur  = 0;
+      drawFn(ctx, false);
+    }
+  } else {
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur  = 0;
+    drawFn(ctx, false);
+  }
 
   ctx.restore();
 }

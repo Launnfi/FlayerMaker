@@ -20,9 +20,85 @@ body[data-mode="mobile"] .layout {
   grid-template-columns: 1fr;
 }
 
-/* Sidebar completo oculto (sigue en DOM: JS lo lee igual) */
+/* Sidebar como panel deslizante (drawer) accesible desde el FAB.
+   Antes se ocultaba entero; ahora se puede abrir para editar en el teléfono. */
 body[data-mode="mobile"] .sidebar {
-  display: none !important;
+  display: block !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 88vw;
+  max-width: 360px;
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform .26s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, .35);
+}
+body[data-mode="mobile"].sidebar-open .sidebar {
+  transform: none;
+}
+
+/* Backdrop oscuro detrás del drawer abierto */
+.fs-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .26s ease, visibility .26s ease;
+}
+body[data-mode="mobile"].sidebar-open .fs-sidebar-backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Botón flotante para abrir/cerrar el panel (solo mobile) */
+.fs-panel-toggle {
+  display: none;
+}
+body[data-mode="mobile"] .fs-panel-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: fixed;
+  left: 14px;
+  bottom: 16px;
+  z-index: 1001;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 999px;
+  background: var(--primary, #C4748A);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
+  cursor: pointer;
+}
+/* Cerrar el drawer desde dentro */
+.fs-panel-cerrar {
+  display: none;
+}
+body[data-mode="mobile"] .fs-panel-cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+  padding: 10px;
+  margin: 0 0 8px;
+  border: none;
+  border-bottom: 1px solid var(--border, #2a2a2a);
+  background: var(--surface, #1a1a1a);
+  color: var(--text, #fff);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 /* Header compacto: dejar marca + botón Crear como acción dominante.
@@ -64,13 +140,58 @@ body[data-mode="mobile"] .auth-nombre { display: none; }
 body[data-mode="mobile"] .auth-user { gap: 4px; }
 body[data-mode="mobile"] .auth-logout { padding: 4px 8px; font-size: 11px; }
 
-/* Preview = solo vista del flyer generado. Sin editor persistente. */
-body[data-mode="mobile"] .editor-toolbar { display: none !important; }
-body[data-mode="mobile"] .panel-edicion-wrap { display: none !important; }
-body[data-mode="mobile"] #editor-overlay { display: none !important; }
+/* Editor SÍ disponible en mobile: toolbar compacto, overlay táctil y panel
+   de edición como bottom sheet. Antes se ocultaba todo; ahora se puede editar. */
+body[data-mode="mobile"] .editor-toolbar {
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+body[data-mode="mobile"] .editor-toolbar .editor-hint { display: none; }
+body[data-mode="mobile"] .btn-toggle-editor,
+body[data-mode="mobile"] #btn-reset-editor {
+  font-size: 13px;
+  padding: 10px 14px;
+}
+
+/* El overlay debe cubrir el canvas para capturar toques cuando el modo edición
+   está activo. clientToCanvas ya mapea al tamaño real del canvas. */
+body[data-mode="mobile"] #editor-overlay {
+  touch-action: none;   /* que el arrastre no scrollee la página */
+}
+
+/* Panel de edición como hoja inferior fija cuando hay un elemento seleccionado */
+body[data-mode="mobile"] .panel-edicion-wrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: none;
+  max-height: 0;
+  z-index: 1002;
+  background: var(--surface, #1a1a1a);
+  border-top: 1px solid var(--border, #2a2a2a);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, .4);
+  transition: max-height .28s ease;
+}
+body[data-mode="mobile"] .panel-edicion-wrap.visible {
+  max-height: 50vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+body[data-mode="mobile"] .panel-edicion {
+  border: none;
+  border-radius: 0;
+}
+
 body[data-mode="mobile"] .preview-area {
   padding: 16px 12px;
   min-height: calc(100vh - 60px);
+}
+/* Cuando el panel de edición está abierto, reservar espacio abajo para que
+   el flyer no quede tapado: el preview crece y se puede scrollear por encima. */
+body[data-mode="mobile"] .preview-area:has(.panel-edicion-wrap.visible) {
+  padding-bottom: 54vh;
 }
 body[data-mode="mobile"] .preview-toolbar .zoom-controls { display: none; }
 

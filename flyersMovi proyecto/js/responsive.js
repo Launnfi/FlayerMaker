@@ -56,7 +56,52 @@
       // Al pasar a tablet/desktop permitimos que un futuro regreso a mobile
       // vuelva a evaluar el auto-asistente.
       _autoAsistenteHecho = false;
+      cerrarPanel(); // el drawer no debe quedar "abierto" fuera de mobile
     }
+  }
+
+  // ── Drawer del sidebar en mobile ──
+  // El sidebar existe siempre en el DOM; en mobile se muestra como panel
+  // deslizante. Inyectamos FAB (abrir), backdrop y botón cerrar sin tocar IDs.
+  function abrirPanel()  { document.body.classList.add('sidebar-open'); }
+  function cerrarPanel() { document.body.classList.remove('sidebar-open'); }
+  function togglePanel() { document.body.classList.toggle('sidebar-open'); }
+
+  function montarDrawerUI() {
+    if (document.getElementById('fs-panel-toggle')) return; // ya montado
+
+    // FAB para abrir/cerrar el panel lateral
+    var fab = document.createElement('button');
+    fab.id = 'fs-panel-toggle';
+    fab.className = 'fs-panel-toggle';
+    fab.type = 'button';
+    fab.setAttribute('aria-label', 'Abrir panel de edición');
+    fab.innerHTML = '✎ Editar';
+    fab.addEventListener('click', togglePanel);
+    document.body.appendChild(fab);
+
+    // Backdrop: cerrar al tocar fuera
+    var backdrop = document.createElement('div');
+    backdrop.className = 'fs-sidebar-backdrop';
+    backdrop.addEventListener('click', cerrarPanel);
+    document.body.appendChild(backdrop);
+
+    // Botón cerrar dentro del sidebar (arriba de todo)
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar && !sidebar.querySelector('.fs-panel-cerrar')) {
+      var cerrar = document.createElement('button');
+      cerrar.className = 'fs-panel-cerrar';
+      cerrar.type = 'button';
+      cerrar.innerHTML = '✕ Cerrar panel';
+      cerrar.addEventListener('click', cerrarPanel);
+      sidebar.insertBefore(cerrar, sidebar.firstChild);
+    }
+
+    // Cerrar el drawer cuando el usuario dispara una generación (ver el flyer).
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && t.closest && t.closest('#asis-generar,#btn-generar')) cerrarPanel();
+    }, true);
   }
 
   // Marca que hay una creación activa (evita reabrir el asistente sobre el preview).
@@ -87,9 +132,10 @@
   window.addEventListener('orientationchange', _onResize);
 
   // Aplicar en cuanto el DOM esté listo (por si el inline temprano falló).
+  function _init() { montarDrawerUI(); aplicarModo(); }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', aplicarModo);
+    document.addEventListener('DOMContentLoaded', _init);
   } else {
-    aplicarModo();
+    _init();
   }
 })();

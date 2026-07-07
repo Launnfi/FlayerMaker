@@ -31,7 +31,7 @@ function dibujarDiaMadre(ctx, W, H, d) {
   dibujarBloque(ctx,'titulo',W/2,H*.50,(ctx,m)=>{
     const sz=H<700?54:68; const lh=H<700?66:82;
     ctx.font=`700 italic ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const lines=titulo.split('\n'); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
+    const lines=envolverLineas(ctx, titulo, W*0.86); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=darken(d.colorP,30);lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh};
   });
@@ -39,7 +39,7 @@ function dibujarDiaMadre(ctx, W, H, d) {
   dibujarBloque(ctx,'descripcion',W/2,H*.66,(ctx,m)=>{
     const sz=H<700?22:28; const lh=H<700?34:42;
     ctx.font=`400 ${sz}px '${fBody}',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const lines=desc.split('\n').filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
+    const lines=envolverLineas(ctx, desc, W*0.86).filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=hexToRgba('#3A2030',.8);lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh||sz+8};
   });

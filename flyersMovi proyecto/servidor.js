@@ -23,6 +23,9 @@ const HF_TEXT_MODEL = CONFIG.huggingface_text_model || 'meta-llama/Llama-3.1-8B-
 // Providers de imagen a probar en orden (endpoint OpenAI-style images/generations).
 // hf-inference deprecó FLUX; estos sí lo sirven vía el router de HF.
 const HF_IMAGE_PROVIDERS = CONFIG.huggingface_image_providers || ['together', 'nscale'];
+const OPENAI_API_KEY   = CONFIG.openai_api_key || '';
+// gpt-image-2 (mejor), gpt-image-1.5, gpt-image-1 (estable/barato), gpt-image-1-mini (más barato).
+const OPENAI_IMAGE_MODEL = CONFIG.openai_image_model || 'gpt-image-1';
 
 // Detecta el MIME de una imagen a partir de sus primeros bytes en base64.
 function mimeDesdeBase64(b64) {
@@ -335,8 +338,8 @@ async function rutearAPI(req, res, urlPath) {
       return true;
     }
 
-    if (!HF_TOKEN) {
-      jsonRes(res, 400, { error: 'Hugging Face token no configurado en config.json' });
+    if (!OPENAI_API_KEY) {
+      jsonRes(res, 400, { error: 'OpenAI API key no configurada en config.json' });
       return true;
     }
 
@@ -345,42 +348,21 @@ async function rutearAPI(req, res, urlPath) {
     // Se usa tal cual; sólo hay un fallback genérico si llega vacío.
     const prompt = body.prompt
       || 'Fondo abstracto y profesional para un flyer. Sin texto, sin caras, sin logos. Formato cuadrado.';
-    const modelo = body.modelo || 'black-forest-labs/FLUX.1-schnell';
-
-    // Endpoint OpenAI-style images/generations vía el router de HF. Se prueban
-    // varios providers en orden porque no todos sirven cada modelo.
-    let ultimoError = 'Ningún provider de Hugging Face pudo generar la imagen.';
-    for (const provider of HF_IMAGE_PROVIDERS) {
-      try {
-        const hfRes = await fetch(`https://router.huggingface.co/${provider}/v1/images/generations`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${HF_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ model: modelo, prompt, response_format: 'b64_json' }),
-        });
-
-        const data = await hfRes.json().catch(() => ({}));
-        if (!hfRes.ok) {
-          ultimoError = data.error?.message || data.error || `provider ${provider} respondió ${hfRes.status}`;
-          continue; // probar el siguiente provider
-        }
-
-        const b64 = data.data?.[0]?.b64_json;
-        if (!b64) { ultimoError = `provider ${provider} no devolvió imagen`; continue; }
-
-        // Sólo se consume cupo cuando HF devuelve una imagen válida.
-        Usuarios.incrementarIA(usuario.id);
-        jsonRes(res, 200, { mimeType: mimeDesdeBase64(b64), data: b64 });
-        return true;
-      } catch (err) {
-        ultimoError = err.message;
-      }
-    }
-
-    jsonRes(res, 500, { error: `Hugging Face: ${ultimoError}` });
-    return true;
+    try {
+      const oaRes = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${OPENAI_API_KEY}` },
+        // Los modelos GPT Image devuelven b64_json por defecto. 1024x1024 = post cuadrado.
+        body: JSON.stringify({ model: OPENAI_IMAGE_MODEL, prompt, n: 1, size: '1024x1024', quality: 'high' }),
+      });
+      const data = await oaRes.json();
+      if (!oaRes.ok) { jsonRes(res, 500, { error: data.error?.message || `OpenAI error ${oaRes.status}` }); return true; }
+      const b64 = data.data?.[0]?.b64_json;
+      if (!b64) { jsonRes(res, 500, { error: 'OpenAI no devolvió imagen' }); return true; }
+      Usuarios.incrementarIA(usuario.id); // sólo se cobra cupo si hubo imagen
+      jsonRes(res, 200, { mimeType: mimeDesdeBase64(b64), data: b64 });
+      return true;
+    } catch (err) { jsonRes(res, 500, { error: `OpenAI: ${err.message}` }); return true; }
   }
 
   // ─── HUGGING FACE: SUGERIR PALETAS ─────────
@@ -437,6 +419,65 @@ async function rutearAPI(req, res, urlPath) {
       jsonRes(res, 500, { error: err.message });
     }
     return true;
+  }
+
+  if (urlPath === '/api/ia/mejorar-flyer' && req.method === 'POST') {
+    const usuario = usuarioActual(req);
+    if (!usuario) { jsonRes(res, 401, { error: 'Iniciá sesión para usar el Director IA' }); return true; }
+    if (!HF_TOKEN) { jsonRes(res, 400, { error: 'Hugging Face token no configurado en config.json' }); return true; }
+
+    const body = JSON.parse(await leerBody(req));
+    const brief = body.brief || {};
+    const instruccion = (body.instruccion || '').slice(0, 400);
+    const camposValidos = Object.keys(brief.campos || {});
+    const elementosIds = (brief.elementos || []).map(e => e.id);
+
+    const sistema =
+      'Sos un director de arte experto en flyers para redes (Instagram) del rubro belleza/estética en Uruguay. ' +
+      'Recibís el ESTADO actual de un flyer y devolvés un PLAN de mejora. ' +
+      'Reglas: mejorá el copy (más claro, vendedor y correcto en español rioplatense, sin exagerar), ' +
+      'proponé una paleta elegante y con buen contraste, elegí una fuente acorde, y reacomodá elementos para que respire. ' +
+      'Coordenadas SIEMPRE normalizadas 0..1. ' +
+      `Sólo podés escribir copy en estos ids: ${JSON.stringify(camposValidos)}. ` +
+      `Sólo podés mover estos elementos: ${JSON.stringify(elementosIds)}. ` +
+      'La fuente es un id del catálogo ["playfair","montserrat","cormorant","raleway","lato","dm-sans"] ' +
+      'O un objeto {"google":"Nombre Google Font","weight":400} si ninguna del catálogo pega con el estilo. ' +
+      'Respondé SOLO JSON válido, sin markdown ni texto extra, con este formato exacto: ' +
+      '{"copy":{"<id>":"texto"},"paleta":{"principal":"#HEX","fondo":"#HEX","acento":"#HEX"},' +
+      '"fuente":"montserrat","layout":[{"id":"titulo","x":0.08,"y":0.5,"escala":1.1,"rotacion":0}],' +
+      '"imagenes":[{"id":"img-1","x":0.72,"y":0.35,"escala":0.9,"tratamiento":{"forma":"redondeado","radio":28,"sombra":true,"marco":true,"tinte":0.15}}],' +
+      '"fondoIA":null,"notas":"resumen corto"}';
+
+    const usuarioMsg =
+      `ESTADO DEL FLYER:\n${JSON.stringify(brief)}\n\n` +
+      (instruccion ? `PEDIDO DEL USUARIO: ${instruccion}\n\n` : '') +
+      'Devolvé el PLAN en JSON.';
+
+    try {
+      const hfRes = await fetch('https://router.huggingface.co/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${HF_TOKEN}` },
+        body: JSON.stringify({
+          model: HF_TEXT_MODEL,
+          messages: [{ role: 'system', content: sistema }, { role: 'user', content: usuarioMsg }],
+          temperature: 0.7, max_tokens: 1200,
+        }),
+      });
+      const data = await hfRes.json();
+      if (!hfRes.ok) { jsonRes(res, 500, { error: data.error?.message || data.error || `Error ${hfRes.status}` }); return true; }
+      const text = data.choices?.[0]?.message?.content || '';
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) { jsonRes(res, 502, { error: 'La IA no devolvió JSON válido. Probá de nuevo.' }); return true; }
+      let plan;
+      try { plan = JSON.parse(match[0]); } catch { jsonRes(res, 502, { error: 'Error parseando el plan de la IA.' }); return true; }
+      if (plan.copy) plan.copy = Object.fromEntries(Object.entries(plan.copy).filter(([id]) => camposValidos.includes(id)));
+      if (Array.isArray(plan.layout)) plan.layout = plan.layout.filter(l => elementosIds.includes(l.id));
+      jsonRes(res, 200, { plan });
+      return true;
+    } catch (err) {
+      jsonRes(res, 500, { error: `Hugging Face: ${err.message}` });
+      return true;
+    }
   }
 
   return false; // no es una ruta API

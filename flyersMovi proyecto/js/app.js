@@ -24,7 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Botones principales ──
-  document.getElementById('btn-generar')?.addEventListener('click', () => generarFlyer());
+  document.getElementById('btn-generar')?.addEventListener('click', () => {
+    if (typeof abrirModalMejorar === 'function') abrirModalMejorar(); else generarFlyer();
+  });
   document.getElementById('btn-descargar')?.addEventListener('click', () => descargarFlyer());
 
   // ── Zoom ──
@@ -50,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cerrarModalPlanes();
       cerrarHistorial();
       cerrarPreviewIG();
+      cerrarModalMejorar?.();
     }
   });
 

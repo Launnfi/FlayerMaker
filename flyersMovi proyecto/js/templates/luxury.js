@@ -38,7 +38,7 @@ function dibujarLuxury(ctx, W, H, d) {
   dibujarBloque(ctx,'titulo',W/2,H*.50,(ctx,m)=>{
     const sz=H<700?50:66; const lh=H<700?62:80;
     ctx.font=`700 ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const lines=titulo.split('\n'); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
+    const lines=envolverLineas(ctx, titulo, W*0.86); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle='#FFF';lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh};
   });
@@ -46,7 +46,7 @@ function dibujarLuxury(ctx, W, H, d) {
   if(desc) dibujarBloque(ctx,'descripcion',W/2,H*.66,(ctx,m)=>{
     const sz=H<700?21:27; const lh=H<700?34:42;
     ctx.font=`300 italic ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const lines=desc.split('\n').filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
+    const lines=envolverLineas(ctx, desc, W*0.86).filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=hexToRgba('#FFF',.65);lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh||sz+8};
   });

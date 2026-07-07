@@ -4,6 +4,8 @@
   "mercadopago_public_key": "APP_USR-xxxxxxxx",
   "huggingface_token": "hf_xxxx  (token de https://huggingface.co/settings/tokens, requerido para IA)",
   "huggingface_text_model": "meta-llama/Llama-3.1-8B-Instruct  (opcional; modelo de texto para paletas/copy)",
+  "openai_api_key": "sk-xxxx  (key de platform.openai.com; SOLO server, nunca en el browser)",
+  "openai_image_model": "gpt-image-1  (o gpt-image-2 para mejor calidad, gpt-image-1-mini para más barato)",
   "google_client_id": "xxxxxxxx.apps.googleusercontent.com",
   "google_client_secret": "GOCSPX-xxxxxxxx",
   "app_secret": "cadena-larga-aleatoria-para-firmar-sesiones (node: crypto.randomBytes(32).toString('hex'))",

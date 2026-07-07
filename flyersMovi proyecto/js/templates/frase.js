@@ -37,7 +37,7 @@ function dibujarFrase(ctx, W, H, d) {
   dibujarBloque(ctx,'frase',W/2,H*.50,(ctx,m)=>{
     const sz=H<700?52:68; const lh=sz+14;
     ctx.font=`700 italic ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const lines=frase.replace(/["""]/g,'').split('\n').filter(Boolean);
+    const lines=envolverLineas(ctx, frase.replace(/["""]/g,''), W*0.82).filter(Boolean);
     const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=textoColor;lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh};
@@ -45,9 +45,7 @@ function dibujarFrase(ctx, W, H, d) {
 
   if(subtitulo) dibujarBloque(ctx,'subtitulo',W/2,H*.72,(ctx,m)=>{
     const sz=H<700?22:28;ctx.font=`400 ${sz}px '${fBody}',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const w=ctx.measureText(subtitulo).width,h=sz+8;
-    if(!m){ctx.fillStyle=hexToRgba(textoColor,.7);ctx.fillText(subtitulo,0,0);}
-    return {w,h};
+    return pintarMultilinea(ctx, subtitulo, W*0.86, sz+8, hexToRgba(textoColor,.7), m);
   });
 
   dibujarFooter(ctx,W,H,d,fBody);

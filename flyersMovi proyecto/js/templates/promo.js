@@ -23,16 +23,12 @@ function dibujarPromo(ctx, W, H, d) {
 
   dibujarBloque(ctx,'negocio',W/2,H*.30,(ctx,m)=>{
     const sz=H<700?38:52; ctx.font=`700 ${sz}px '${fTitulo}',serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-    const w=ctx.measureText(d.negocio).width, h=sz+8;
-    if(!m){ctx.fillStyle=textoColor; ctx.fillText(d.negocio,0,0);}
-    return {w,h};
+    return pintarMultilinea(ctx, d.negocio, W*0.86, sz+8, textoColor, m);
   });
 
   if(d.slogan) dibujarBloque(ctx,'slogan',W/2,H*.36,(ctx,m)=>{
     const sz=H<700?20:26; ctx.font=`400 ${sz}px '${fBody}',sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-    const w=ctx.measureText(d.slogan).width, h=sz+6;
-    if(!m){ctx.fillStyle=d.colorP; ctx.fillText(d.slogan,0,0);}
-    return {w,h};
+    return pintarMultilinea(ctx, d.slogan, W*0.86, sz+6, d.colorP, m);
   });
 
   if(precio){
@@ -50,7 +46,7 @@ function dibujarPromo(ctx, W, H, d) {
 
   dibujarBloque(ctx,'titulo',W*.08,H*.52,(ctx,m)=>{
     const sz=H<700?46:64; ctx.font=`700 ${sz}px '${fTitulo}',serif`; ctx.textAlign='left'; ctx.textBaseline='middle';
-    const lines=titulo.split('\n').filter(Boolean); const lh=sz+14;
+    const lines=envolverLineas(ctx, titulo, W*0.84).filter(Boolean); const lh=sz+14;
     const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1), mH=lines.length*lh;
     if(!m){ctx.fillStyle=textoColor; lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:mH};
@@ -58,7 +54,7 @@ function dibujarPromo(ctx, W, H, d) {
 
   dibujarBloque(ctx,'descripcion',W*.08,H*.72,(ctx,m)=>{
     const sz=H<700?24:30; ctx.font=`400 ${sz}px '${fBody}',sans-serif`; ctx.textAlign='left'; ctx.textBaseline='middle';
-    const lines=desc.split('\n').filter(Boolean); const lh=sz+14;
+    const lines=envolverLineas(ctx, desc, W*0.84).filter(Boolean); const lh=sz+14;
     const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1), mH=lines.length*lh;
     if(!m){ctx.fillStyle=hexToRgba(textoColor,.75); lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:mH};

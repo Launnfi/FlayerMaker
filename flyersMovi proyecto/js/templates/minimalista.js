@@ -31,16 +31,14 @@ function dibujarMinimalista(ctx, W, H, d) {
   dibujarBloque(ctx,'titulo',W/2,H*.52,(ctx,m)=>{
     const sz=H<700?50:66; const lh=H<700?62:80;
     ctx.font=`300 ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const lines=titulo.split('\n'); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
+    const lines=envolverLineas(ctx, titulo, W*0.86); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=textoColor;lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh};
   });
 
   if(subtxt) dibujarBloque(ctx,'subtitulo',W/2,H*.64,(ctx,m)=>{
     const sz=H<700?20:24; ctx.font=`400 ${sz}px '${fBody}',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const w=ctx.measureText(subtxt).width,h=sz+8;
-    if(!m){ctx.fillStyle=d.colorP;ctx.fillText(subtxt,0,0);}
-    return {w,h};
+    return pintarMultilinea(ctx, subtxt, W*0.86, sz+8, d.colorP, m);
   });
 
   if(cta) dibujarBloque(ctx,'cta',W/2,H*.78,(ctx,m)=>{

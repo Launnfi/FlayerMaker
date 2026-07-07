@@ -59,6 +59,9 @@ function generarFlyer() {
     ctx.fillText('Error al renderizar', W/2, H/2);
   }
 
+  // Imágenes-objeto encima del flyer y debajo de los handles
+  if (typeof dibujarImagenesObjeto === 'function') dibujarImagenesObjeto(ctx, W, H);
+
   // ── Dibujar handles del editor encima del flyer ──
   if (typeof dibujarHandles === 'function') {
     dibujarHandles(ctx);

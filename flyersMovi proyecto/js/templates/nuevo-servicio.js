@@ -46,7 +46,7 @@ function dibujarNuevoServicio(ctx, W, H, d) {
   dibujarBloque(ctx,'titulo',W*.055,H*.52,(ctx,m)=>{
     const sz=H<700?54:70; const lh=H<700?66:82;
     ctx.font=`900 ${sz}px '${fTitulo}',serif`;ctx.textAlign='left';ctx.textBaseline='middle';
-    const lines=nombre.split('\n'); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
+    const lines=envolverLineas(ctx, nombre, W*0.88); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=textoColor;lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh};
   });
@@ -54,7 +54,7 @@ function dibujarNuevoServicio(ctx, W, H, d) {
   dibujarBloque(ctx,'descripcion',W*.055,H*.68,(ctx,m)=>{
     const sz=H<700?22:28; const lh=H<700?34:42;
     ctx.font=`400 ${sz}px '${fBody}',sans-serif`;ctx.textAlign='left';ctx.textBaseline='middle';
-    const lines=desc.split('\n').filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
+    const lines=envolverLineas(ctx, desc, W*0.88).filter(Boolean); const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     if(!m){ctx.fillStyle=hexToRgba(textoColor,.75);lines.forEach((l,i)=>ctx.fillText(l,0,(i-(lines.length-1)/2)*lh));}
     return {w:mW,h:lines.length*lh||sz+8};
   });

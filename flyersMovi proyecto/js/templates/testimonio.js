@@ -28,15 +28,13 @@ function dibujarTestimonio(ctx, W, H, d) {
 
   dibujarBloque(ctx,'negocio',W/2,H*.22,(ctx,m)=>{
     const sz=H<700?32:40; ctx.font=`700 ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const w=ctx.measureText(d.negocio).width,h=sz+8;
-    if(!m){ctx.fillStyle=textoColor;ctx.fillText(d.negocio,0,0);}
-    return {w,h};
+    return pintarMultilinea(ctx, d.negocio, W*0.86, sz+8, textoColor, m);
   });
 
   dibujarBloque(ctx,'frase',W/2,H*.46,(ctx,m)=>{
     const sz=H<700?30:38; const lh=sz+12;
     ctx.font=`italic 400 ${sz}px '${fTitulo}',serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const lines=testimonio.replace(/["""]/g,'').split('\n').filter(Boolean);
+    const lines=envolverLineas(ctx, testimonio.replace(/["""]/g,''), W*0.82).filter(Boolean);
     const mW=Math.max(...lines.map(l=>ctx.measureText(l).width),1);
     const totalH=(lines.length-1)*lh;
     if(!m){
